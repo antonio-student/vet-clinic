@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Animals List</title>
+</head>
+<body>
+<h1>Registered Animals</h1>
+<a th:href="@{/animals/new}">Add New Animal</a>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Species</th>
+        <th>Age</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="animal : ${animalPage.content}">
+        <td th:text="${animal.id}"></td>
+        <td th:text="${animal.name}"></td>
+        <td th:text="${animal.species}"></td>
+        <td th:text="${animal.age}"></td>
+        <td>
+            <a th:href="@{/animals/edit/{id}(id=${animal.id})}">Edit</a> |
+            <a onclick="return confirm('Are you sure?');" th:href="@{/animals/delete/{id}(id=${animal.id})}">Delete</a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<!-- Pagination UI -->
+<div th:if="${animalPage.totalPages > 1}">
+    <span>Pages: </span>
+    <span th:each="i : ${#numbers.sequence(0, animalPage.totalPages - 1)}">
+            <a th:href="@{/animals(page=${i})}" th:if="${currentPage != i}" th:text="${i + 1}"></a>
+            <span style="font-weight:bold;" th:text="${i + 1}" th:unless="${currentPage != i}"></span>
+        </span>
+</div>
+</body>
+</html>

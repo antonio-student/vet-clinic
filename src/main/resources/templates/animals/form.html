@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Animal Form</title>
+</head>
+<body>
+<h1 th:text="${animal.id == null ? 'Add New Animal' : 'Edit Animal'}"></h1>
+
+<form method="post" th:action="@{/animals/save}" th:object="${animal}">
+    <!-- Hidden ID field for updates -->
+    <input th:field="*{id}" type="hidden"/>
+
+    <div>
+        <label>Name:</label>
+        <input th:field="*{name}" type="text"/>
+        <!-- Server-side validation error display -->
+        <span style="color:red;" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></span>
+    </div>
+
+    <div>
+        <label>Species:</label>
+        <input th:field="*{species}" type="text"/>
+        <span style="color:red;" th:errors="*{species}" th:if="${#fields.hasErrors('species')}"></span>
+    </div>
+
+    <div>
+        <label>Age:</label>
+        <input th:field="*{age}" type="number"/>
+        <span style="color:red;" th:errors="*{age}" th:if="${#fields.hasErrors('age')}"></span>
+    </div>
+
+    <!-- Note: We will add the Client dropdown later when the Client entity is fully ready -->
+
+    <button type="submit">Save</button>
+</form>
+
+<br/>
+<a th:href="@{/animals}">Back to list</a>
+</body>
+</html>
