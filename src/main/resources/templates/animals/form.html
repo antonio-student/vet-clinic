@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Animal Form</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}">
+
+        <div class="ribbon-links">
+            <a class="ribbon-link active" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+
+        <div class="ribbon-actions">
+            <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
+        </div>
+    </div>
+</nav>
+
+<main class="page-shell">
+    <section class="form-card">
+        <div class="form-header">
+            <div>
+                <h1 class="page-title page-title-small" th:text="${animal.id == null ? 'New Patient' : 'Edit Patient'}">
+                    Edit Patient</h1>
+            </div>
+        </div>
+
+        <p class="form-intro">
+            Enter the patient details below. Each field gets its own row so the layout stays aligned and the owner
+            dropdown behaves like the rest of the form.
+        </p>
+
+        <form method="post" th:action="@{/animals/save}" th:object="${animal}">
+            <input th:field="*{id}" type="hidden"/>
+
+            <div class="field-stack">
+                <div class="field">
+                    <label for="name">Patient name</label>
+                    <input id="name" placeholder="Ex: Luna" th:field="*{name}" type="text"/>
+                    <span class="error-text" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></span>
+                </div>
+
+                <div class="field">
+                    <label for="species">Species</label>
+                    <input id="species" placeholder="Ex: Cat, Dog, Rabbit" th:field="*{species}" type="text"/>
+                    <span class="error-text" th:errors="*{species}" th:if="${#fields.hasErrors('species')}"></span>
+                </div>
+
+                <div class="field">
+                    <label for="age">Age</label>
+                    <input id="age" min="0" placeholder="0" th:field="*{age}" type="number"/>
+                    <span class="helper-text">Use whole years for consistency across records.</span>
+                    <span class="error-text" th:errors="*{age}" th:if="${#fields.hasErrors('age')}"></span>
+                </div>
+
+                <div class="field">
+                    <label for="client">Owner</label>
+                    <select id="client" th:field="*{client.id}">
+                        <option value="">Select a client</option>
+                        <option th:each="clientOption : ${clients}"
+                                th:text="${clientOption.email != null and !#strings.isEmpty(clientOption.email)} ? |${clientOption.name} - ${clientOption.email}| : ${clientOption.name}"
+                                th:value="${clientOption.id}">
+                            Client Name
+                        </option>
+                    </select>
+                    <span class="error-text" th:errors="*{client}" th:if="${#fields.hasErrors('client')}"></span>
+                </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 28px;">
+                <button class="btn btn-primary" th:text="${animal.id == null ? 'Save Patient' : 'Update Patient'}"
+                        type="submit">Save Patient
+                </button>
+                <a class="btn btn-secondary" th:href="@{/animals}">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, and appointments.</span>
+        </div>
+        <div class="footer-text">Contact and clinic details can be added here later.</div>
+    </div>
+</footer>
+</body>
+</html>

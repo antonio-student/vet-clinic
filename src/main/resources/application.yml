@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: vet-clinic
+  docker:
+    compose:
+      lifecycle-management: start_and_stop
+
+
+springdoc:
+  swagger-ui:
+    path: /swagger
