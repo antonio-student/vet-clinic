@@ -1,2 +1,82 @@
-<!-- TODO: doctors list template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Doctors List</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link active" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h1 class="page-title page-title-small">Doctor Roster</h1>
+                <p class="section-copy">Staff records now include specialty assignment directly, so doctor setup happens in one workflow.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="btn btn-primary" th:href="@{/doctors/new}">Create Doctor</a>
+            </div>
+        </div>
+        <div class="table-shell" th:if="${!doctorPage.isEmpty()}">
+            <div class="table-head">
+                <div>Doctor</div>
+                <div>Email</div>
+                <div>Specialties</div>
+                <div>Appointments</div>
+                <div style="text-align: right;">Actions</div>
+            </div>
+            <div class="table-row" th:each="doctor : ${doctorPage.content}">
+                <div class="name-cell"><div class="name-main" th:text="${doctor.firstName + ' ' + doctor.lastName}">Dr. Name</div></div>
+                <div class="name-main" th:text="${doctor.email}">doctor@clinic.com</div>
+                <div class="name-cell">
+                    <div class="chip-row" th:if="${doctor.specialties != null and !doctor.specialties.isEmpty()}">
+                        <span class="species-pill" th:each="specialty : ${doctor.specialties}" th:text="${specialty.name}">Surgery</span>
+                    </div>
+                    <div class="helper-text" th:if="${doctor.specialties == null or doctor.specialties.isEmpty()}">No specialties assigned</div>
+                </div>
+                <div><span class="species-pill" th:text="${doctor.appointments != null ? doctor.appointments.size() : 0} + ' booked'">0 booked</span></div>
+                <div class="table-actions">
+                    <a class="btn btn-secondary table-btn" th:href="@{/doctors/edit/{id}(id=${doctor.id})}">Edit</a>
+                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this doctor?');" th:href="@{/doctors/delete/{id}(id=${doctor.id})}">Delete</a>
+                </div>
+            </div>
+        </div>
+        <div class="empty-state" th:if="${doctorPage.isEmpty()}">
+            <h3 class="empty-title">No doctors on the roster yet</h3>
+            <p class="empty-copy">Create the first staff profile so appointments can be assigned to an actual clinician.</p>
+            <div class="hero-actions" style="justify-content:center; margin-top: 20px;">
+                <a class="btn btn-primary" th:href="@{/doctors/new}">Create First Doctor</a>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="pagination" th:if="${doctorPage.totalPages > 1}">
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, doctorPage.totalPages - 1)}" th:href="@{/doctors(page=${i})}" th:text="${i + 1}">1</a>
+            </div>
+            <div class="panel-footnote">Total registered: <span th:text="${doctorPage.totalElements}">0</span></div>
+        </div>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Doctor management is now part of the same UI system.</div>
+    </div>
+</footer>
+</body>
+</html>

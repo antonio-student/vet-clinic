@@ -1,2 +1,67 @@
-<!-- TODO: medical records form template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Medical Record Form</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/animals}">Patient Charts</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="form-card">
+        <div class="form-header">
+            <div><h1 class="page-title page-title-small" th:text="${medicalRecord.id == null ? 'New Medical Record' : 'Edit Medical Record'}">Medical Record</h1></div>
+        </div>
+        <p class="form-intro">Medical records anchor treatment history for a single patient, so select the patient first and then store the main notes.</p>
+        <form method="post" th:action="@{/medical-records/save}" th:object="${medicalRecord}">
+            <input th:field="*{id}" type="hidden">
+            <div class="field-stack">
+                <div class="field">
+                    <label for="animal">Patient</label>
+                    <select id="animal" th:field="*{animal.id}">
+                        <option value="">Select a patient</option>
+                        <option th:each="animalOption : ${animals}" th:text="${animalOption.name + ' - ' + animalOption.species}" th:value="${animalOption.id}">Patient</option>
+                    </select>
+                    <span class="error-text" th:errors="*{animal}" th:if="${#fields.hasErrors('animal')}"></span>
+                </div>
+                <div class="field">
+                    <label for="creationDate">Creation date</label>
+                    <input id="creationDate" th:field="*{creationDate}" type="date">
+                    <span class="error-text" th:errors="*{creationDate}" th:if="${#fields.hasErrors('creationDate')}"></span>
+                </div>
+                <div class="field">
+                    <label for="generalNotes">General notes</label>
+                    <textarea class="textarea" id="generalNotes" placeholder="Clinical observations, allergies, chronic history, or anything relevant for future visits." th:field="*{generalNotes}"></textarea>
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 28px;">
+                <button class="btn btn-primary" th:text="${medicalRecord.id == null ? 'Save Record' : 'Update Record'}" type="submit">Save Record</button>
+                <a class="btn btn-secondary" th:href="@{/medical-records}">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Medical record forms now support patient selection and note entry.</div>
+    </div>
+</footer>
+</body>
+</html>

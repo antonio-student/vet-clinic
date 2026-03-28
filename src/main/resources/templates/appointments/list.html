@@ -1,2 +1,80 @@
-<!-- TODO: appointments list template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Appointments List</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link active" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h1 class="page-title page-title-small">Appointment Board</h1>
+                <p class="section-copy">Bookings connect a patient, a doctor, a reason for visit, and a status in one place.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="btn btn-primary" th:href="@{/appointments/new}">Create Appointment</a>
+            </div>
+        </div>
+        <div class="table-shell" th:if="${!appointmentPage.isEmpty()}">
+            <div class="table-head">
+                <div>Patient</div>
+                <div>Date &amp; Time</div>
+                <div>Doctor</div>
+                <div>Status</div>
+                <div style="text-align: right;">Actions</div>
+            </div>
+            <div class="table-row" th:each="appointment : ${appointmentPage.content}">
+                <div class="name-cell">
+                    <div class="name-main" th:text="${appointment.animal != null ? appointment.animal.name : 'Unknown patient'}">Luna</div>
+                    <div class="helper-text" th:text="${appointment.reason}">Vaccination</div>
+                </div>
+                <div class="name-main" th:text="${appointment.appointmentDate != null ? #temporals.format(appointment.appointmentDate, 'dd MMM yyyy, HH:mm') : 'Not scheduled'}">28 Mar 2026, 14:00</div>
+                <div class="name-main" th:text="${appointment.doctor != null ? appointment.doctor.firstName + ' ' + appointment.doctor.lastName : 'Unassigned'}">Doctor</div>
+                <div><span class="species-pill" th:text="${appointment.status}">SCHEDULED</span></div>
+                <div class="table-actions">
+                    <a class="btn btn-secondary table-btn" th:href="@{/appointments/edit/{id}(id=${appointment.id})}">Edit</a>
+                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this appointment?');" th:href="@{/appointments/delete/{id}(id=${appointment.id})}">Delete</a>
+                </div>
+            </div>
+        </div>
+        <div class="empty-state" th:if="${appointmentPage.isEmpty()}">
+            <h3 class="empty-title">No appointments scheduled</h3>
+            <p class="empty-copy">Create the first booking to connect a patient, clinician, and visit reason.</p>
+            <div class="hero-actions" style="justify-content:center; margin-top: 20px;">
+                <a class="btn btn-primary" th:href="@{/appointments/new}">Book First Appointment</a>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="pagination" th:if="${appointmentPage.totalPages > 1}">
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, appointmentPage.totalPages - 1)}" th:href="@{/appointments(page=${i})}" th:text="${i + 1}">1</a>
+            </div>
+            <div class="panel-footnote">Total registered: <span th:text="${appointmentPage.totalElements}">0</span></div>
+        </div>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Appointments now share the same visual rhythm as the animal pages.</div>
+    </div>
+</footer>
+</body>
+</html>

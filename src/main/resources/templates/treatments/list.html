@@ -1,2 +1,78 @@
-<!-- TODO: treatments list template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Treatments List</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/animals}">Patient Charts</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h1 class="page-title page-title-small">Treatment Log</h1>
+                <p class="section-copy">Treatments document interventions, dates, cost, and the medical record they belong to.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="btn btn-primary" th:href="@{/treatments/new}">Create Treatment</a>
+            </div>
+        </div>
+        <div class="table-shell" th:if="${!treatmentPage.isEmpty()}">
+            <div class="table-head">
+                <div>Description</div>
+                <div>Date</div>
+                <div>Cost</div>
+                <div>Record</div>
+                <div style="text-align: right;">Actions</div>
+            </div>
+            <div class="table-row" th:each="treatment : ${treatmentPage.content}">
+                <div class="name-cell"><div class="name-main" th:text="${treatment.description}">Treatment description</div></div>
+                <div class="name-main" th:text="${treatment.treatmentDate != null ? #temporals.format(treatment.treatmentDate, 'dd MMM yyyy') : 'No date'}">28 Mar 2026</div>
+                <div class="name-main" th:text="${#numbers.formatDecimal(treatment.cost, 1, 2)} + ' RON'">100.00 RON</div>
+                <div class="name-main" th:text="${treatment.medicalRecord != null ? 'Record #' + treatment.medicalRecord.id : 'Unassigned'}">Record #1</div>
+                <div class="table-actions">
+                    <a class="btn btn-secondary table-btn" th:href="@{/treatments/edit/{id}(id=${treatment.id})}">Edit</a>
+                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this treatment?');" th:href="@{/treatments/delete/{id}(id=${treatment.id})}">Delete</a>
+                </div>
+            </div>
+        </div>
+        <div class="empty-state" th:if="${treatmentPage.isEmpty()}">
+            <h3 class="empty-title">No treatments logged yet</h3>
+            <p class="empty-copy">Create the first treatment entry to connect patient care with the correct medical record.</p>
+            <div class="hero-actions" style="justify-content:center; margin-top: 20px;">
+                <a class="btn btn-primary" th:href="@{/treatments/new}">Create First Treatment</a>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="pagination" th:if="${treatmentPage.totalPages > 1}">
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, treatmentPage.totalPages - 1)}" th:href="@{/treatments(page=${i})}" th:text="${i + 1}">1</a>
+            </div>
+            <div class="panel-footnote">Total registered: <span th:text="${treatmentPage.totalElements}">0</span></div>
+        </div>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Treatment screens are now visually aligned with the rest of the app.</div>
+    </div>
+</footer>
+</body>
+</html>
