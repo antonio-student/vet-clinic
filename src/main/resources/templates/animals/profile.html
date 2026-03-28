@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Patient Chart</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}">
+            <img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}">
+        </a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link active" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+
+<main class="page-shell">
+    <section class="hero hero-compact">
+        <div class="hero-bar">
+            <div class="hero-copy">
+                <div class="eyebrow">Patient Chart</div>
+                <h1 class="page-title" th:text="${animal.name}">Luna</h1>
+                <p class="page-subtitle">
+                    Patient chart for
+                    <strong th:text="${animal.species}">Cat</strong>.
+                    Medical activity for this patient lives below: record status, treatment history, and recent visits.
+                </p>
+                <div class="chip-row">
+                    <span class="context-chip" th:text="${animal.species}">Cat</span>
+                    <span class="context-chip" th:text="${animal.age} + ' years old'">4 years old</span>
+                    <span class="context-chip" th:text="${animal.client != null ? 'Owner: ' + animal.client.name : 'No owner assigned'}">Owner: Ana Popescu</span>
+                    <span class="context-chip" th:text="${appointments.size()} + ' appointments'">0 appointments</span>
+                </div>
+            </div>
+            <div class="hero-actions">
+                <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="profile-grid">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="section-title">Medical record and treatments</h2>
+                    <p class="section-copy">The patient chart keeps the record header and the full treatment history in one workflow.</p>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${!hasMedicalRecord}">
+                <h3 class="empty-title">No medical record yet</h3>
+                <p class="empty-copy">Create the chart once, then treatments can be added directly from this patient page.</p>
+                <form class="inline-form" method="post" th:action="@{/animals/{id}/medical-record(id=${animal.id})}">
+                    <button class="btn btn-primary" type="submit">Create Medical Record</button>
+                </form>
+            </div>
+
+            <div th:if="${hasMedicalRecord}">
+                <div class="split-grid panel-section">
+                    <div class="detail-row">
+                        <span class="detail-label">Record created</span>
+                        <span class="detail-value" th:text="${medicalRecord != null and medicalRecord.creationDate != null ? #temporals.format(medicalRecord.creationDate, 'dd MMM yyyy') : 'Unknown'}">28 Mar 2026</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Treatments logged</span>
+                        <span class="detail-value" th:text="${treatments.size()} + ' total entries'">0 total entries</span>
+                    </div>
+                </div>
+
+                <div class="detail-row panel-section">
+                    <span class="detail-label">General notes</span>
+                    <span class="detail-value" th:text="${medicalRecord != null and !#strings.isEmpty(medicalRecord.generalNotes) ? medicalRecord.generalNotes : 'No general notes added yet.'}">Notes</span>
+                </div>
+
+                <div class="panel panel-section" style="padding: 20px;">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="section-title">Quick add treatment</h3>
+                            <p class="section-copy">Record a new treatment without leaving the patient chart.</p>
+                        </div>
+                    </div>
+                    <form method="post" th:action="@{/animals/{id}/treatments(id=${animal.id})}" th:object="${quickTreatment}">
+                        <div class="field-stack">
+                            <div class="field">
+                                <label for="description">Treatment description</label>
+                                <input id="description" placeholder="Ex: Vaccination booster" th:field="*{description}" type="text">
+                                <span class="error-text" th:errors="*{description}" th:if="${#fields.hasErrors('description')}"></span>
+                            </div>
+                            <div class="split-grid">
+                                <div class="field">
+                                    <label for="treatmentDate">Treatment date</label>
+                                    <input id="treatmentDate" th:field="*{treatmentDate}" type="date">
+                                    <span class="error-text" th:errors="*{treatmentDate}" th:if="${#fields.hasErrors('treatmentDate')}"></span>
+                                </div>
+                                <div class="field">
+                                    <label for="cost">Cost</label>
+                                    <input id="cost" min="0" step="0.01" th:field="*{cost}" type="number">
+                                    <span class="error-text" th:errors="*{cost}" th:if="${#fields.hasErrors('cost')}"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions" style="margin-top: 22px;">
+                            <button class="btn btn-primary" type="submit">Save Treatment</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="section-title">Treatment history</h3>
+                    <p class="section-copy">A chronological view of everything recorded for this patient chart.</p>
+                    <div class="timeline-list" style="margin-top: 16px;" th:if="${!treatments.isEmpty()}">
+                        <article class="timeline-item" th:each="treatment : ${treatments}">
+                            <div class="timeline-top">
+                                <div>
+                                    <p class="timeline-title" th:text="${treatment.description}">Vaccination booster</p>
+                                    <div class="timeline-meta" th:text="${treatment.treatmentDate != null ? #temporals.format(treatment.treatmentDate, 'dd MMM yyyy') : 'No date'}">28 Mar 2026</div>
+                                </div>
+                                <span class="cost-pill" th:text="${#numbers.formatDecimal(treatment.cost, 1, 2)} + ' RON'">100.00 RON</span>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="empty-state" th:if="${treatments.isEmpty()}" style="margin-top: 16px;">
+                        <h3 class="empty-title">No treatments recorded yet</h3>
+                        <p class="empty-copy">The chart is ready. Add the first treatment above to start the clinical history.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <aside class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="section-title">Recent appointments</h2>
+                    <p class="section-copy">Visit history stays close to the chart so the team can follow continuity of care.</p>
+                </div>
+            </div>
+
+            <div class="timeline-list" th:if="${!appointments.isEmpty()}">
+                <article class="timeline-item" th:each="appointment : ${appointments}">
+                    <div class="timeline-top">
+                        <div>
+                            <p class="timeline-title" th:text="${appointment.reason}">Annual checkup</p>
+                            <div class="timeline-meta">
+                                <span th:text="${appointment.appointmentDate != null ? #temporals.format(appointment.appointmentDate, 'dd MMM yyyy, HH:mm') : 'Not scheduled'}">28 Mar 2026, 14:00</span>
+                                <br>
+                                <span th:text="${appointment.doctor != null ? appointment.doctor.firstName + ' ' + appointment.doctor.lastName : 'No doctor assigned'}">Doctor</span>
+                            </div>
+                        </div>
+                        <span class="species-pill" th:text="${appointment.status}">SCHEDULED</span>
+                    </div>
+                </article>
+            </div>
+
+            <div class="empty-state" th:if="${appointments.isEmpty()}">
+                <h3 class="empty-title">No appointments yet</h3>
+                <p class="empty-copy">The patient chart is ready for scheduling once the first consultation is booked.</p>
+            </div>
+        </aside>
+    </section>
+</main>
+
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care now treats the patient chart as the central place for medical history and treatment activity.</span>
+        </div>
+        <div class="footer-text">Clinical workflow is centered on the animal profile.</div>
+    </div>
+</footer>
+</body>
+</html>

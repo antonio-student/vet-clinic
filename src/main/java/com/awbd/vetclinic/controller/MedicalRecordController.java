@@ -1,11 +1,14 @@
 package com.awbd.vetclinic.controller;
 
 import com.awbd.vetclinic.model.MedicalRecord;
+import com.awbd.vetclinic.model.Animal;
+import com.awbd.vetclinic.service.AnimalService;
 import com.awbd.vetclinic.service.MedicalRecordService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,9 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class MedicalRecordController {
 
     private final MedicalRecordService medicalRecordService;
+    private final AnimalService animalService;
 
-    public MedicalRecordController(MedicalRecordService medicalRecordService) {
+    public MedicalRecordController(MedicalRecordService medicalRecordService, AnimalService animalService) {
         this.medicalRecordService = medicalRecordService;
+        this.animalService = animalService;
     }
 
     @GetMapping
@@ -34,17 +39,29 @@ public class MedicalRecordController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("medicalRecord", new MedicalRecord());
+        MedicalRecord medicalRecord = new MedicalRecord();
+        medicalRecord.setAnimal(new Animal());
+        model.addAttribute("medicalRecord", medicalRecord);
+        populateFormOptions(model);
         return "medical-records/form";
     }
 
     @PostMapping("/save")
     public String create(@Valid @ModelAttribute("medicalRecord") MedicalRecord medicalRecord,
-                         BindingResult bindingResult) {
+                         BindingResult bindingResult,
+                         Model model) {
+        if (medicalRecord.getAnimal() == null || medicalRecord.getAnimal().getId() == null) {
+            bindingResult.rejectValue("animal", "medicalRecord.animal", "Patient is required");
+        }
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for medical record creation");
+            if (medicalRecord.getAnimal() == null) {
+                medicalRecord.setAnimal(new Animal());
+            }
+            populateFormOptions(model);
             return "medical-records/form";
         }
+        medicalRecord.setAnimal(animalService.getAnimalById(medicalRecord.getAnimal().getId()));
         medicalRecordService.create(medicalRecord);
         return "redirect:/medical-records";
     }
@@ -53,6 +70,7 @@ public class MedicalRecordController {
     public String showEditForm(@PathVariable Long id, Model model) {
         MedicalRecord medicalRecord = medicalRecordService.getMedicalRecordById(id);
         model.addAttribute("medicalRecord", medicalRecord);
+        populateFormOptions(model);
         return "medical-records/form";
     }
 
@@ -60,6 +78,10 @@ public class MedicalRecordController {
     public String deleteMedicalRecord(@PathVariable Long id) {
         medicalRecordService.deleteMedicalRecord(id);
         return "redirect:/medical-records";
+    }
+
+    private void populateFormOptions(Model model) {
+        model.addAttribute("animals", animalService.getAllAnimals(Pageable.unpaged()).getContent());
     }
 }
 

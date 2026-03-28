@@ -7,12 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class AppointmentService extends BaseService<Appointment> {
+    private final AppointmentRepository appointmentRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository) {
         super(appointmentRepository, "Appointment");
+        this.appointmentRepository = appointmentRepository;
     }
 
     public Appointment create(Appointment appointment) {
@@ -28,6 +32,11 @@ public class AppointmentService extends BaseService<Appointment> {
     public Appointment getAppointmentById(Long id) {
         log.info("Fetching appointment with id: {}", id);
         return getEntityById(id);
+    }
+
+    public List<Appointment> getAppointmentsForAnimal(Long animalId) {
+        log.info("Fetching appointments for animal with id: {}", animalId);
+        return appointmentRepository.findByAnimalIdOrderByAppointmentDateDesc(animalId);
     }
 
     public Appointment update(Long id, Appointment appointmentDetails) {

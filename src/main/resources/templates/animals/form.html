@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Animal Form</title>
     <meta charset="UTF-8">
@@ -9,9 +9,12 @@
 <body>
 <nav class="site-ribbon">
     <div class="site-ribbon-inner">
-        <img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}">
+        <a th:href="@{/}">
+            <img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}">
+        </a>
 
         <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link active" th:href="@{/animals}">Animals</a>
             <a class="ribbon-link" th:href="@{/clients}">Clients</a>
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
@@ -34,8 +37,8 @@
         </div>
 
         <p class="form-intro">
-            Enter the patient details below. Each field gets its own row so the layout stays aligned and the owner
-            dropdown behaves like the rest of the form.
+            Enter the patient identity and owner details here. Clinical history now lives in the patient chart after
+            the patient is saved.
         </p>
 
         <form method="post" th:action="@{/animals/save}" th:object="${animal}">
@@ -79,6 +82,7 @@
                 <button class="btn btn-primary" th:text="${animal.id == null ? 'Save Patient' : 'Update Patient'}"
                         type="submit">Save Patient
                 </button>
+                <a class="btn btn-ghost" th:href="@{/animals/{id}(id=${animal.id})}" th:if="${animal.id != null}">View Patient Chart</a>
                 <a class="btn btn-secondary" th:href="@{/animals}">Back</a>
             </div>
         </form>
@@ -86,13 +90,13 @@
 </main>
 
 <footer class="footer-ribbon">
-    <div class="footer-inner">
-        <div class="footer-copy">
-            <span class="footer-title">About Buddy Care</span>
-            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, and appointments.</span>
+        <div class="footer-inner">
+            <div class="footer-copy">
+                <span class="footer-title">About Buddy Care</span>
+                <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, and chart history.</span>
+            </div>
+        <div class="footer-text">Once saved, the patient chart becomes the medical workspace.</div>
         </div>
-        <div class="footer-text">Contact and clinic details can be added here later.</div>
-    </div>
 </footer>
 </body>
 </html>

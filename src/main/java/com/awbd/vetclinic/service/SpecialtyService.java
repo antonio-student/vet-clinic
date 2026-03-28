@@ -7,12 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 public class SpecialtyService extends BaseService<Specialty> {
+    private final SpecialtyRepository specialtyRepository;
 
     public SpecialtyService(SpecialtyRepository specialtyRepository) {
         super(specialtyRepository, "Specialty");
+        this.specialtyRepository = specialtyRepository;
     }
 
     public Specialty create(Specialty specialty) {
@@ -28,6 +32,22 @@ public class SpecialtyService extends BaseService<Specialty> {
     public Specialty getSpecialtyById(Long id) {
         log.info("Fetching specialty with id: {}", id);
         return getEntityById(id);
+    }
+
+    public Optional<Specialty> findByNameIgnoreCase(String name) {
+        log.info("Fetching specialty with name: {}", name);
+        return specialtyRepository.findByNameIgnoreCase(name);
+    }
+
+    public Specialty getOrCreateByName(String name) {
+        String normalizedName = name == null ? "" : name.trim();
+        return findByNameIgnoreCase(normalizedName)
+                .orElseGet(() -> {
+                    Specialty specialty = new Specialty();
+                    specialty.setName(normalizedName);
+                    specialty.setDescription(null);
+                    return create(specialty);
+                });
     }
 
     public Specialty update(Long id, Specialty specialtyDetails) {

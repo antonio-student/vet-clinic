@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Buddy Care Login</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<main class="login-shell">
+    <section class="login-banner">
+        <img alt="Buddy Care logo" class="brand-logo" style="height: 88px;" th:src="@{/logo.svg}">
+        <h1 class="page-title page-title-small" style="margin-top: 18px;">Welcome to Buddy Care</h1>
+        <p class="page-subtitle">
+            A single workspace for patient intake, owner management, doctor scheduling, medical records, specialties,
+            and treatment history.
+        </p>
+
+        <div class="highlight-list">
+            <div class="highlight-item">
+                <p class="highlight-title">Consistent clinic UI</p>
+                <p class="card-copy">All major modules now share the same visual language as the finished animal screens.</p>
+            </div>
+            <div class="highlight-item">
+                <p class="highlight-title">Dashboard after authentication</p>
+                <p class="card-copy">Users land on the command center page immediately after login instead of dropping into a random entity route.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="login-card">
+        <div class="form-header">
+            <div>
+                <h2 class="page-title page-title-small">Sign in</h2>
+                <p class="section-copy">Use the application credentials to enter the clinic dashboard.</p>
+            </div>
+        </div>
+
+        <div class="alert alert-error" th:if="${param.error}">
+            Invalid username or password.
+        </div>
+
+        <div class="alert alert-success" th:if="${param.logout}">
+            You have been logged out successfully.
+        </div>
+
+        <form method="post" th:action="@{/login}">
+            <div class="field-stack">
+                <div class="field">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" placeholder="admin" type="text">
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" placeholder="admin123" type="password">
+                </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 24px;">
+                <button class="btn btn-primary" type="submit">Login</button>
+            </div>
+        </form>
+
+        <div class="login-note" style="margin-top: 18px;">
+            Demo credentials: <strong>admin</strong> / <strong>admin123</strong>
+        </div>
+    </section>
+</main>
+</body>
+</html>

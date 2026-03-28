@@ -1,2 +1,73 @@
-<!-- TODO: treatments form template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Treatment Form</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/animals}">Patient Charts</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="form-card">
+        <div class="form-header">
+            <div><h1 class="page-title page-title-small" th:text="${treatment.id == null ? 'New Treatment' : 'Edit Treatment'}">Treatment</h1></div>
+        </div>
+        <p class="form-intro">Treatments should be linked to a medical record so all interventions remain attached to the patient history they belong to.</p>
+        <form method="post" th:action="@{/treatments/save}" th:object="${treatment}">
+            <input th:field="*{id}" type="hidden">
+            <div class="field-stack">
+                <div class="field">
+                    <label for="description">Description</label>
+                    <input id="description" placeholder="Ex: Deworming treatment" th:field="*{description}" type="text">
+                    <span class="error-text" th:errors="*{description}" th:if="${#fields.hasErrors('description')}"></span>
+                </div>
+                <div class="field">
+                    <label for="treatmentDate">Treatment date</label>
+                    <input id="treatmentDate" th:field="*{treatmentDate}" type="date">
+                    <span class="error-text" th:errors="*{treatmentDate}" th:if="${#fields.hasErrors('treatmentDate')}"></span>
+                </div>
+                <div class="field">
+                    <label for="cost">Cost</label>
+                    <input id="cost" min="0" step="0.01" th:field="*{cost}" type="number">
+                    <span class="error-text" th:errors="*{cost}" th:if="${#fields.hasErrors('cost')}"></span>
+                </div>
+                <div class="field">
+                    <label for="medicalRecord">Medical record</label>
+                    <select id="medicalRecord" th:field="*{medicalRecord.id}">
+                        <option value="">Select a medical record</option>
+                        <option th:each="record : ${medicalRecords}" th:text="${'Record #' + record.id + ' - ' + (record.animal != null ? record.animal.name : 'No patient')}" th:value="${record.id}">Record</option>
+                    </select>
+                    <span class="error-text" th:errors="*{medicalRecord}" th:if="${#fields.hasErrors('medicalRecord')}"></span>
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 28px;">
+                <button class="btn btn-primary" th:text="${treatment.id == null ? 'Save Treatment' : 'Update Treatment'}" type="submit">Save Treatment</button>
+                <a class="btn btn-secondary" th:href="@{/treatments}">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Treatment forms now support record linking.</div>
+    </div>
+</footer>
+</body>
+</html>

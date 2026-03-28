@@ -1,2 +1,65 @@
-<!-- TODO: clients form template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Client Form</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link active" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="form-card">
+        <div class="form-header">
+            <div><h1 class="page-title page-title-small" th:text="${client.id == null ? 'New Client' : 'Edit Client'}">Client</h1></div>
+        </div>
+        <p class="form-intro">Store owner contact details here so patient assignment, reminders, and follow-up care all have a reliable contact base.</p>
+        <form method="post" th:action="@{/clients/save}" th:object="${client}">
+            <input th:field="*{id}" type="hidden">
+            <div class="field-stack">
+                <div class="field">
+                    <label for="name">Full name</label>
+                    <input id="name" placeholder="Ex: Ana Popescu" th:field="*{name}" type="text">
+                    <span class="error-text" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></span>
+                </div>
+                <div class="field">
+                    <label for="phone">Phone</label>
+                    <input id="phone" placeholder="Ex: 07xx xxx xxx" th:field="*{phone}" type="text">
+                    <span class="error-text" th:errors="*{phone}" th:if="${#fields.hasErrors('phone')}"></span>
+                </div>
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" placeholder="client@example.com" th:field="*{email}" type="email">
+                    <span class="helper-text">Email is optional, but it helps for reminders and confirmations.</span>
+                    <span class="error-text" th:errors="*{email}" th:if="${#fields.hasErrors('email')}"></span>
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 28px;">
+                <button class="btn btn-primary" th:text="${client.id == null ? 'Save Client' : 'Update Client'}" type="submit">Save Client</button>
+                <a class="btn btn-secondary" th:href="@{/clients}">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Client forms now follow the same structure as patient forms.</div>
+    </div>
+</footer>
+</body>
+</html>

@@ -7,12 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class TreatmentService extends BaseService<Treatment> {
+    private final TreatmentRepository treatmentRepository;
 
     public TreatmentService(TreatmentRepository treatmentRepository) {
         super(treatmentRepository, "Treatment");
+        this.treatmentRepository = treatmentRepository;
     }
 
     public Treatment create(Treatment treatment) {
@@ -28,6 +32,11 @@ public class TreatmentService extends BaseService<Treatment> {
     public Treatment getTreatmentById(Long id) {
         log.info("Fetching treatment with id: {}", id);
         return getEntityById(id);
+    }
+
+    public List<Treatment> getTreatmentsForMedicalRecord(Long medicalRecordId) {
+        log.info("Fetching treatments for medical record with id: {}", medicalRecordId);
+        return treatmentRepository.findByMedicalRecordIdOrderByTreatmentDateDescIdDesc(medicalRecordId);
     }
 
     public Treatment update(Long id, Treatment treatmentDetails) {
