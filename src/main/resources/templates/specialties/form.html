@@ -1,2 +1,54 @@
-<!-- TODO: specialties form template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Specialty Form</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctor Setup</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="form-card">
+        <div class="form-header">
+            <div><h1 class="page-title page-title-small" th:text="${specialty.id == null ? 'New Specialty' : 'Edit Specialty'}">Specialty</h1></div>
+        </div>
+        <p class="form-intro">This page remains available for direct cleanup, but most specialty creation now happens inside the doctor form.</p>
+        <form method="post" th:action="@{/specialties/save}" th:object="${specialty}">
+            <input th:field="*{id}" type="hidden">
+            <div class="field-stack">
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input id="name" placeholder="Ex: Dermatology" th:field="*{name}" type="text">
+                    <span class="error-text" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></span>
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 28px;">
+                <button class="btn btn-primary" th:text="${specialty.id == null ? 'Save Specialty' : 'Update Specialty'}" type="submit">Save Specialty</button>
+                <a class="btn btn-secondary" th:href="@{/specialties}">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Specialty forms now match the rest of the admin experience.</div>
+    </div>
+</footer>
+</body>
+</html>

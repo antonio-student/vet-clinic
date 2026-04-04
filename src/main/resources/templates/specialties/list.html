@@ -1,2 +1,77 @@
-<!-- TODO: specialties list template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Specialties List</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctor Setup</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h1 class="page-title page-title-small">Specialties Catalog</h1>
+                <p class="section-copy">Use specialties to structure staff expertise and make doctor profiles more meaningful.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="btn btn-primary" th:href="@{/specialties/new}">Create Specialty</a>
+            </div>
+        </div>
+        <div class="table-shell" th:if="${!specialtyPage.isEmpty()}">
+            <div class="table-head">
+                <div>Name</div>
+                <div>Doctors</div>
+                <div></div>
+                <div></div>
+                <div style="text-align: right;">Actions</div>
+            </div>
+            <div class="table-row" th:each="specialty : ${specialtyPage.content}">
+                <div class="name-cell"><div class="name-main" th:text="${specialty.name}">Surgery</div></div>
+                <div><span class="species-pill" th:text="${specialty.doctors != null ? specialty.doctors.size() : 0} + ' doctors'">0 doctors</span></div>
+                <div></div>
+                <div></div>
+                <div class="table-actions">
+                    <a class="btn btn-secondary table-btn" th:href="@{/specialties/edit/{id}(id=${specialty.id})}">Edit</a>
+                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this specialty?');" th:href="@{/specialties/delete/{id}(id=${specialty.id})}">Delete</a>
+                </div>
+            </div>
+        </div>
+        <div class="empty-state" th:if="${specialtyPage.isEmpty()}">
+            <h3 class="empty-title">No specialties defined yet</h3>
+            <p class="empty-copy">Create the first specialty if you need to manage the list directly, although doctor setup can now create them inline.</p>
+            <div class="hero-actions" style="justify-content:center; margin-top: 20px;">
+                <a class="btn btn-primary" th:href="@{/specialties/new}">Create First Specialty</a>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="pagination" th:if="${specialtyPage.totalPages > 1}">
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, specialtyPage.totalPages - 1)}" th:href="@{/specialties(page=${i})}" th:text="${i + 1}">1</a>
+            </div>
+            <div class="panel-footnote">Total registered: <span th:text="${specialtyPage.totalElements}">0</span></div>
+        </div>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Specialty management now fits into the same interface family.</div>
+    </div>
+</footer>
+</body>
+</html>

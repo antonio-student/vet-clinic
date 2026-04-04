@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Buddy Care Dashboard</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}">
+            <img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}">
+        </a>
+
+        <div class="ribbon-links">
+            <a class="ribbon-link active" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+
+        <div class="ribbon-actions">
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<main class="page-shell">
+    <section class="hero">
+        <div class="hero-grid">
+            <div>
+                <h1 class="page-title">Clinic command center</h1>
+                <p class="page-subtitle">
+                    Welcome back, <strong th:text="${username}">admin</strong>. This landing page gives the team a
+                    clean starting point after login, with the current clinic footprint and direct paths into each
+                    operational area.
+                </p>
+                <div class="hero-actions" style="margin-top: 22px;">
+                    <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
+                    <a class="btn btn-secondary" th:href="@{/animals/new}">Add Patient</a>
+                    <a class="btn btn-ghost" th:href="@{/doctors/new}">Add Doctor</a>
+                </div>
+            </div>
+
+            <div class="highlight-card">
+                <div class="card-kicker">Operations snapshot</div>
+                <div class="highlight-list">
+                    <div class="highlight-item">
+                        <p class="highlight-title">Active patient directory</p>
+                        <p class="card-copy">Track registered animals, linked owners, records, and follow-up work from a single flow.</p>
+                    </div>
+                    <div class="highlight-item">
+                        <p class="highlight-title">Staff and coverage</p>
+                        <p class="card-copy">Keep doctors and their specialties aligned in one place so scheduling stays practical.</p>
+                    </div>
+                    <div class="highlight-item">
+                        <p class="highlight-title">Treatment lifecycle</p>
+                        <p class="card-copy">Move from booking to record creation and billed treatment entries without jumping between inconsistent views.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dashboard-grid">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="section-title">Core metrics</h2>
+                    <p class="section-copy">A quick count of the main data sets currently managed inside the clinic workspace.</p>
+                </div>
+            </div>
+
+            <div class="metric-grid">
+                <article class="metric-card">
+                    <div class="metric-kicker">Animals</div>
+                    <div class="metric-value" th:text="${animalCount}">0</div>
+                    <p class="metric-copy">Registered patients in the clinic directory.</p>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-kicker">Clients</div>
+                    <div class="metric-value" th:text="${clientCount}">0</div>
+                    <p class="metric-copy">Owners currently stored in the system.</p>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-kicker">Doctors</div>
+                    <div class="metric-value" th:text="${doctorCount}">0</div>
+                    <p class="metric-copy">Medical staff available for scheduling.</p>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-kicker">Appointments</div>
+                    <div class="metric-value" th:text="${appointmentCount}">0</div>
+                    <p class="metric-copy">Visits booked across consultation flows.</p>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-kicker">Records</div>
+                    <div class="metric-value" th:text="${medicalRecordCount}">0</div>
+                    <p class="metric-copy">Medical record files currently maintained.</p>
+                </article>
+                <article class="metric-card">
+                    <div class="metric-kicker">Treatments</div>
+                    <div class="metric-value" th:text="${treatmentCount}">0</div>
+                    <p class="metric-copy">Documented treatments attached to records.</p>
+                </article>
+            </div>
+        </div>
+
+        <aside class="panel">
+            <div class="panel-header">
+                <div>
+                    <h2 class="section-title">Quick access</h2>
+                    <p class="section-copy">Shortcut into the admin areas your staff will open most often.</p>
+                </div>
+            </div>
+
+            <div class="stack-links">
+                <a class="stack-link" th:href="@{/animals}">
+                    <span>Patient directory</span>
+                    <span th:text="${animalCount}">0</span>
+                </a>
+                <a class="stack-link" th:href="@{/appointments}">
+                    <span>Appointment board</span>
+                    <span th:text="${appointmentCount}">0</span>
+                </a>
+                <a class="stack-link" th:href="@{/doctors}">
+                    <span>Doctor roster</span>
+                    <span th:text="${doctorCount}">0</span>
+                </a>
+                <a class="stack-link" th:href="@{/clients}">
+                    <span>Client directory</span>
+                    <span th:text="${clientCount}">0</span>
+                </a>
+            </div>
+        </aside>
+    </section>
+</main>
+
+<footer class="footer-ribbon">
+        <div class="footer-inner">
+            <div class="footer-copy">
+                <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, and patient charts.</span>
+        </div>
+        <div class="footer-text">Patient charts now absorb the main record and treatment workflow.</div>
+        </div>
+</footer>
+</body>
+</html>

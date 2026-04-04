@@ -1,2 +1,77 @@
-<!-- TODO: clients list template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Clients List</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link active" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h1 class="page-title page-title-small">Client Directory</h1>
+                <p class="section-copy">Owners are kept here so patient files and appointments stay attached to the right household.</p>
+            </div>
+            <div class="hero-actions">
+                <a class="btn btn-primary" th:href="@{/clients/new}">Create Client</a>
+            </div>
+        </div>
+        <div class="table-shell" th:if="${!clientPage.isEmpty()}">
+            <div class="table-head">
+                <div>Client</div>
+                <div>Phone</div>
+                <div>Email</div>
+                <div>Animals</div>
+                <div style="text-align: right;">Actions</div>
+            </div>
+            <div class="table-row" th:each="client : ${clientPage.content}">
+                <div class="name-cell"><div class="name-main" th:text="${client.name}">Ana Popescu</div></div>
+                <div class="name-main" th:text="${client.phone}">0700000000</div>
+                <div class="name-main" th:text="${#strings.isEmpty(client.email) ? 'No email' : client.email}">client@email.com</div>
+                <div><span class="species-pill" th:text="${client.animals != null ? client.animals.size() : 0} + ' linked'">0 linked</span></div>
+                <div class="table-actions">
+                    <a class="btn btn-secondary table-btn" th:href="@{/clients/edit/{id}(id=${client.id})}">Edit</a>
+                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this client?');" th:href="@{/clients/delete/{id}(id=${client.id})}">Delete</a>
+                </div>
+            </div>
+        </div>
+        <div class="empty-state" th:if="${clientPage.isEmpty()}">
+            <h3 class="empty-title">No clients yet</h3>
+            <p class="empty-copy">Create the first owner profile so patients can be linked to a real contact record.</p>
+            <div class="hero-actions" style="justify-content:center; margin-top: 20px;">
+                <a class="btn btn-primary" th:href="@{/clients/new}">Create First Client</a>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="pagination" th:if="${clientPage.totalPages > 1}">
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, clientPage.totalPages - 1)}" th:href="@{/clients(page=${i})}" th:text="${i + 1}">1</a>
+            </div>
+            <div class="panel-footnote">Total registered: <span th:text="${clientPage.totalElements}">0</span></div>
+        </div>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Client management now matches the finished animal area.</div>
+    </div>
+</footer>
+</body>
+</html>

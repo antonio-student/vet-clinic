@@ -1,2 +1,76 @@
-<!-- TODO: doctors form template -->
-
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Doctor Form</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link active" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="form-card">
+        <div class="form-header">
+            <div><h1 class="page-title page-title-small" th:text="${doctor.id == null ? 'New Doctor' : 'Edit Doctor'}">Doctor</h1></div>
+        </div>
+        <p class="form-intro">Use the doctor profile to capture identity, contact information, and specialty coverage in one place.</p>
+        <form method="post" th:action="@{/doctors/save}" th:object="${doctor}">
+            <input th:field="*{id}" type="hidden">
+            <div class="field-stack">
+                <div class="field">
+                    <label for="firstName">First name</label>
+                    <input id="firstName" placeholder="Ex: Andrei" th:field="*{firstName}" type="text">
+                    <span class="error-text" th:errors="*{firstName}" th:if="${#fields.hasErrors('firstName')}"></span>
+                </div>
+                <div class="field">
+                    <label for="lastName">Last name</label>
+                    <input id="lastName" placeholder="Ex: Ionescu" th:field="*{lastName}" type="text">
+                    <span class="error-text" th:errors="*{lastName}" th:if="${#fields.hasErrors('lastName')}"></span>
+                </div>
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" placeholder="doctor@buddycare.ro" th:field="*{email}" type="email">
+                    <span class="error-text" th:errors="*{email}" th:if="${#fields.hasErrors('email')}"></span>
+                </div>
+                <div class="field">
+                    <label for="specialtyIds">Specialties</label>
+                    <select id="specialtyIds" multiple name="specialtyIds" size="6">
+                        <option th:each="specialty : ${specialties}" th:selected="${selectedSpecialtyIds != null and selectedSpecialtyIds.contains(specialty.id)}" th:text="${specialty.name}" th:value="${specialty.id}">Specialty</option>
+                    </select>
+                    <span class="helper-text">Choose existing specialties here, then add any missing ones just below.</span>
+                </div>
+                <div class="field">
+                    <label for="newSpecialties">Quick add new specialties</label>
+                    <input id="newSpecialties" name="newSpecialties" placeholder="Ex: Surgery, Dermatology" th:value="${newSpecialties}" type="text">
+                    <span class="helper-text">Enter one or more new specialties separated by commas. They will be created and assigned on save.</span>
+                </div>
+            </div>
+            <div class="form-actions" style="margin-top: 28px;">
+                <button class="btn btn-primary" th:text="${doctor.id == null ? 'Save Doctor' : 'Update Doctor'}" type="submit">Save Doctor</button>
+                <a class="btn btn-secondary" th:href="@{/doctors}">Back</a>
+            </div>
+        </form>
+    </section>
+</main>
+<footer class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Doctor forms include specialty assignment support.</div>
+    </div>
+</footer>
+</body>
+</html>
