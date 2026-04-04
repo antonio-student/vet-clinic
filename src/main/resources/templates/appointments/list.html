@@ -13,9 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link active" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -38,7 +38,7 @@
                 <div>Status</div>
                 <div style="text-align: right;">Actions</div>
             </div>
-            <div class="table-row" th:each="appointment : ${appointmentPage.content}">
+            <div class="table-row" th:each="appointment : ${appointmentPage.content}" th:if="${!isUser or appointment.animal == null or appointment.animal.client == null or appointment.animal.client.email == null or appointment.animal.client.email.equalsIgnoreCase(#authentication.name)}">
                 <div class="name-cell">
                     <div class="name-main" th:text="${appointment.animal != null ? appointment.animal.name : 'Unknown patient'}">Luna</div>
                     <div class="helper-text" th:text="${appointment.reason}">Vaccination</div>
@@ -47,8 +47,8 @@
                 <div class="name-main" th:text="${appointment.doctor != null ? appointment.doctor.firstName + ' ' + appointment.doctor.lastName : 'Unassigned'}">Doctor</div>
                 <div><span class="species-pill" th:text="${appointment.status}">SCHEDULED</span></div>
                 <div class="table-actions">
-                    <a class="btn btn-secondary table-btn" th:href="@{/appointments/edit/{id}(id=${appointment.id})}">Edit</a>
-                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this appointment?');" th:href="@{/appointments/delete/{id}(id=${appointment.id})}">Delete</a>
+                    <a class="btn btn-secondary table-btn" th:href="@{/appointments/edit/{id}(id=${appointment.id})}" th:if="${isEmployee or isAdmin}">Edit</a>
+                    <a class="btn btn-danger table-btn" th:if="${isAdmin}" onclick="return confirm('Are you sure you want to delete this appointment?');" th:href="@{/appointments/delete/{id}(id=${appointment.id})}">Delete</a>
                 </div>
             </div>
         </div>

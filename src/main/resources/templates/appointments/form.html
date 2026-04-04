@@ -13,9 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link active" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -32,7 +32,7 @@
                     <label for="animal">Patient</label>
                     <select id="animal" th:field="*{animal.id}">
                         <option value="">Select a patient</option>
-                        <option th:each="animalOption : ${animals}" th:text="${animalOption.name + ' - ' + animalOption.species}" th:value="${animalOption.id}">Patient</option>
+                        <option th:each="animalOption : ${animals}" th:if="${!isUser or animalOption.client == null or animalOption.client.email == null or animalOption.client.email.equalsIgnoreCase(#authentication.name)}" th:text="${animalOption.name + ' - ' + animalOption.species}" th:value="${animalOption.id}">Patient</option>
                     </select>
                     <span class="error-text" th:errors="*{animal}" th:if="${#fields.hasErrors('animal')}"></span>
                 </div>

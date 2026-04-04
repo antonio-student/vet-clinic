@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Access Denied</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<main class="page-shell">
+    <section class="panel" style="max-width: 720px; margin: 64px auto;">
+        <div class="panel-header">
+            <div>
+                <h1 class="page-title page-title-small">Access denied</h1>
+                <p class="section-copy">Your account is authenticated, but it does not have permission to open this area.</p>
+            </div>
+        </div>
+        <div class="highlight-list">
+            <div class="highlight-item">
+                <p class="highlight-title">Role-restricted area</p>
+                <p class="card-copy">This screen or action is limited by the current role model: user, employee, and administrator do not share the same permissions.</p>
+            </div>
+            <div class="highlight-item">
+                <p class="highlight-title">Next step</p>
+                <p class="card-copy">Return to the dashboard or sign out and authenticate with an account that has the required permissions.</p>
+            </div>
+        </div>
+        <div class="hero-actions" style="margin-top: 24px;">
+            <a class="btn btn-primary" th:href="@{/}">Back to Dashboard</a>
+            <form method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="btn btn-secondary" type="submit">Log Out</button>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

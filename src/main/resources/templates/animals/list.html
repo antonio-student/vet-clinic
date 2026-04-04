@@ -16,9 +16,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link active" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -44,7 +44,7 @@
                 <div style="text-align: right;">Actions</div>
             </div>
 
-            <div class="table-row" th:each="animal : ${animalPage.content}">
+            <div class="table-row" th:each="animal : ${animalPage.content}" th:if="${!isUser or animal.client == null or animal.client.email == null or animal.client.email.equalsIgnoreCase(#authentication.name)}">
                 <div class="name-cell">
                     <div class="name-main" th:text="${animal.name}">Luna</div>
                 </div>
@@ -63,8 +63,8 @@
 
                 <div class="table-actions">
                     <a class="btn btn-ghost table-btn" th:href="@{/animals/{id}(id=${animal.id})}">Chart</a>
-                    <a class="btn btn-secondary table-btn" th:href="@{/animals/edit/{id}(id=${animal.id})}">Edit</a>
-                    <a class="btn btn-danger table-btn"
+                    <a class="btn btn-secondary table-btn" th:href="@{/animals/edit/{id}(id=${animal.id})}" th:if="${isEmployee or isAdmin}">Edit</a>
+                    <a class="btn btn-danger table-btn" th:if="${isAdmin}"
                        onclick="return confirm('Are you sure you want to delete this animal?');"
                        th:href="@{/animals/delete/{id}(id=${animal.id})}">Delete</a>
                 </div>

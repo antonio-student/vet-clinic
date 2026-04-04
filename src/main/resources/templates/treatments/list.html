@@ -46,7 +46,7 @@
                 <div class="name-main" th:text="${treatment.medicalRecord != null ? 'Record #' + treatment.medicalRecord.id : 'Unassigned'}">Record #1</div>
                 <div class="table-actions">
                     <a class="btn btn-secondary table-btn" th:href="@{/treatments/edit/{id}(id=${treatment.id})}">Edit</a>
-                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this treatment?');" th:href="@{/treatments/delete/{id}(id=${treatment.id})}">Delete</a>
+                    <a class="btn btn-danger table-btn" th:if="${isAdmin}" onclick="return confirm('Are you sure you want to delete this treatment?');" th:href="@{/treatments/delete/{id}(id=${treatment.id})}">Delete</a>
                 </div>
             </div>
         </div>
