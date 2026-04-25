@@ -13,9 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link active" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link active" th:href="@{/clients}">Clients</a>
         </div>
     </div>
 </nav>
@@ -25,7 +25,7 @@
             <div><h1 class="page-title page-title-small" th:text="${client.id == null ? 'New Client' : 'Edit Client'}">Client</h1></div>
         </div>
         <p class="form-intro">Store owner contact details here so patient assignment, reminders, and follow-up care all have a reliable contact base.</p>
-        <form method="post" th:action="@{/clients/save}" th:object="${client}">
+        <form method="post" th:action="${formAction}" th:object="${client}">
             <input th:field="*{id}" type="hidden">
             <div class="field-stack">
                 <div class="field">

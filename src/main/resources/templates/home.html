@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Buddy Care Dashboard</title>
     <meta charset="UTF-8">
@@ -15,10 +15,10 @@
 
         <div class="ribbon-links">
             <a class="ribbon-link active" th:href="@{/}">Dashboard</a>
-            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/animals}" th:if="${!isUser or isEmployee or isAdmin}">Animals</a>
+            <a class="ribbon-link" th:href="@{/appointments}" th:if="${!isUser or isEmployee or isAdmin}">Appointments</a>
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
-            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
 
         <div class="ribbon-actions">
@@ -32,37 +32,17 @@
 
 <main class="page-shell">
     <section class="hero">
-        <div class="hero-grid">
-            <div>
-                <h1 class="page-title">Clinic command center</h1>
-                <p class="page-subtitle">
-                    Welcome back, <strong th:text="${username}">admin</strong>. This landing page gives the team a
-                    clean starting point after login, with the current clinic footprint and direct paths into each
-                    operational area.
-                </p>
-                <div class="hero-actions" style="margin-top: 22px;">
-                    <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
-                    <a class="btn btn-secondary" th:href="@{/animals/new}">Add Patient</a>
-                    <a class="btn btn-ghost" th:href="@{/doctors/new}">Add Doctor</a>
-                </div>
-            </div>
-
-            <div class="highlight-card">
-                <div class="card-kicker">Operations snapshot</div>
-                <div class="highlight-list">
-                    <div class="highlight-item">
-                        <p class="highlight-title">Active patient directory</p>
-                        <p class="card-copy">Track registered animals, linked owners, records, and follow-up work from a single flow.</p>
-                    </div>
-                    <div class="highlight-item">
-                        <p class="highlight-title">Staff and coverage</p>
-                        <p class="card-copy">Keep doctors and their specialties aligned in one place so scheduling stays practical.</p>
-                    </div>
-                    <div class="highlight-item">
-                        <p class="highlight-title">Treatment lifecycle</p>
-                        <p class="card-copy">Move from booking to record creation and billed treatment entries without jumping between inconsistent views.</p>
-                    </div>
-                </div>
+        <div class="hero-copy hero-home">
+            <div class="eyebrow">Daily Dashboard</div>
+            <h1 class="page-title">Clinic command center</h1>
+            <p class="page-subtitle">
+                Welcome back, <strong th:text="${username}">admin</strong>. Keep registrations, visits, doctors, and medical records in view from one clean starting point.
+            </p>
+            <div class="hero-actions hero-actions-home">
+                <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
+                <a class="btn btn-secondary" th:href="@{/animals/new}">Add Patient</a>
+                <a class="btn btn-ghost" th:href="@{/doctors}" th:if="${isUser and !isEmployee and !isAdmin}">View Doctors</a>
+                <a class="btn btn-ghost" sec:authorize="hasRole('EMPLOYEE') or hasRole('ADMIN')" th:href="@{/doctors/new}">Add Doctor</a>
             </div>
         </div>
     </section>
@@ -131,7 +111,7 @@
                     <span>Doctor roster</span>
                     <span th:text="${doctorCount}">0</span>
                 </a>
-                <a class="stack-link" th:href="@{/clients}">
+                <a class="stack-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">
                     <span>Client directory</span>
                     <span th:text="${clientCount}">0</span>
                 </a>

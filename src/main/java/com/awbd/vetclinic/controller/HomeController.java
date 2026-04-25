@@ -8,6 +8,7 @@ import com.awbd.vetclinic.service.MedicalRecordService;
 import com.awbd.vetclinic.service.SpecialtyService;
 import com.awbd.vetclinic.service.TreatmentService;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,5 +57,15 @@ public class HomeController {
     @GetMapping("/login")
     public String login() {
         return "login";
+    }
+
+    @GetMapping("/access-denied")
+    public String accessDenied() {
+        return "access-denied";
+    }
+
+    @GetMapping("/favicon.ico")
+    public ResponseEntity<Void> favicon() {
+        return ResponseEntity.noContent().build();
     }
 }

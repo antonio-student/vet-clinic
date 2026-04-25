@@ -13,9 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link active" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -25,28 +25,28 @@
             <div><h1 class="page-title page-title-small" th:text="${appointment.id == null ? 'New Appointment' : 'Edit Appointment'}">Appointment</h1></div>
         </div>
         <p class="form-intro">Choose the patient and doctor first, then define the time, the consultation reason, and the current status.</p>
-        <form method="post" th:action="@{/appointments/save}" th:object="${appointment}">
+        <form method="post" th:action="${formAction}" th:object="${appointment}">
             <input th:field="*{id}" type="hidden">
             <div class="field-stack">
                 <div class="field">
                     <label for="animal">Patient</label>
-                    <select id="animal" th:field="*{animal.id}">
+                    <select id="animal" name="animal.id">
                         <option value="">Select a patient</option>
-                        <option th:each="animalOption : ${animals}" th:text="${animalOption.name + ' - ' + animalOption.species}" th:value="${animalOption.id}">Patient</option>
+                        <option th:each="animalOption : ${animals}" th:if="${!isUser or animalOption.client == null or animalOption.client.email == null or animalOption.client.email.equalsIgnoreCase(#authentication.name)}" th:selected="${selectedAnimalId != null and selectedAnimalId == animalOption.id}" th:text="${animalOption.name + ' - ' + animalOption.species}" th:value="${animalOption.id}">Patient</option>
                     </select>
                     <span class="error-text" th:errors="*{animal}" th:if="${#fields.hasErrors('animal')}"></span>
                 </div>
                 <div class="field">
                     <label for="doctor">Doctor</label>
-                    <select id="doctor" th:field="*{doctor.id}">
+                    <select id="doctor" name="doctor.id">
                         <option value="">Select a doctor</option>
-                        <option th:each="doctorOption : ${doctors}" th:text="${doctorOption.firstName + ' ' + doctorOption.lastName}" th:value="${doctorOption.id}">Doctor</option>
+                        <option th:each="doctorOption : ${doctors}" th:selected="${selectedDoctorId != null and selectedDoctorId == doctorOption.id}" th:text="${doctorOption.firstName + ' ' + doctorOption.lastName}" th:value="${doctorOption.id}">Doctor</option>
                     </select>
                     <span class="error-text" th:errors="*{doctor}" th:if="${#fields.hasErrors('doctor')}"></span>
                 </div>
                 <div class="field">
                     <label for="appointmentDate">Date and time</label>
-                    <input id="appointmentDate" th:field="*{appointmentDate}" type="datetime-local">
+                    <input id="appointmentDate" name="appointmentDate" th:value="${appointmentDateValue}" type="datetime-local">
                     <span class="error-text" th:errors="*{appointmentDate}" th:if="${#fields.hasErrors('appointmentDate')}"></span>
                 </div>
                 <div class="field">

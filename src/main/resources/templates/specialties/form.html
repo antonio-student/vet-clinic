@@ -13,9 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctor Setup</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -25,7 +25,7 @@
             <div><h1 class="page-title page-title-small" th:text="${specialty.id == null ? 'New Specialty' : 'Edit Specialty'}">Specialty</h1></div>
         </div>
         <p class="form-intro">This page remains available for direct cleanup, but most specialty creation now happens inside the doctor form.</p>
-        <form method="post" th:action="@{/specialties/save}" th:object="${specialty}">
+        <form method="post" th:action="${formAction}" th:object="${specialty}">
             <input th:field="*{id}" type="hidden">
             <div class="field-stack">
                 <div class="field">

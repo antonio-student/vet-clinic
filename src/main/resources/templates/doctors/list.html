@@ -13,9 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link active" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link active" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -26,10 +26,21 @@
                 <h1 class="page-title page-title-small">Doctor Roster</h1>
                 <p class="section-copy">Staff records now include specialty assignment directly, so doctor setup happens in one workflow.</p>
             </div>
-            <div class="hero-actions">
+            <div class="hero-actions" th:if="${isEmployee or isAdmin}">
                 <a class="btn btn-primary" th:href="@{/doctors/new}">Create Doctor</a>
             </div>
         </div>
+        <form class="toolbar" method="get" th:action="@{/doctors}">
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="doctorName">Name contains</label>
+                <input class="toolbar-input" id="doctorName" name="name" placeholder="Search doctor name" th:value="${nameFilter}" type="text">
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="doctorEmail">Email contains</label>
+                <input class="toolbar-input" id="doctorEmail" name="email" placeholder="Search doctor email" th:value="${emailFilter}" type="text">
+            </div>
+            <button class="btn btn-secondary toolbar-btn" type="submit">Apply</button>
+        </form>
         <div class="table-shell" th:if="${!doctorPage.isEmpty()}">
             <div class="table-head">
                 <div>Doctor</div>
@@ -49,21 +60,21 @@
                 </div>
                 <div><span class="species-pill" th:text="${doctor.appointments != null ? doctor.appointments.size() : 0} + ' booked'">0 booked</span></div>
                 <div class="table-actions">
-                    <a class="btn btn-secondary table-btn" th:href="@{/doctors/edit/{id}(id=${doctor.id})}">Edit</a>
-                    <a class="btn btn-danger table-btn" onclick="return confirm('Are you sure you want to delete this doctor?');" th:href="@{/doctors/delete/{id}(id=${doctor.id})}">Delete</a>
+                    <a class="btn btn-secondary table-btn" th:href="@{/doctors/edit/{id}(id=${doctor.id})}" th:if="${isEmployee or isAdmin}">Edit</a>
+                    <a class="btn btn-danger table-btn" th:if="${isAdmin}" onclick="return confirm('Are you sure you want to delete this doctor?');" th:href="@{/doctors/delete/{id}(id=${doctor.id})}">Delete</a>
                 </div>
             </div>
         </div>
         <div class="empty-state" th:if="${doctorPage.isEmpty()}">
             <h3 class="empty-title">No doctors on the roster yet</h3>
             <p class="empty-copy">Create the first staff profile so appointments can be assigned to an actual clinician.</p>
-            <div class="hero-actions" style="justify-content:center; margin-top: 20px;">
+            <div class="hero-actions" style="justify-content:center; margin-top: 20px;" th:if="${isEmployee or isAdmin}">
                 <a class="btn btn-primary" th:href="@{/doctors/new}">Create First Doctor</a>
             </div>
         </div>
         <div class="panel-footer">
             <div class="pagination" th:if="${doctorPage.totalPages > 1}">
-                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, doctorPage.totalPages - 1)}" th:href="@{/doctors(page=${i})}" th:text="${i + 1}">1</a>
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, doctorPage.totalPages - 1)}" th:href="@{/doctors(page=${i}, name=${nameFilter}, email=${emailFilter})}" th:text="${i + 1}">1</a>
             </div>
             <div class="panel-footnote">Total registered: <span th:text="${doctorPage.totalElements}">0</span></div>
         </div>

@@ -16,12 +16,12 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link active" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
 
-        <div class="ribbon-actions">
+        <div class="ribbon-actions" th:if="${isEmployee or isAdmin}">
             <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
         </div>
     </div>
@@ -41,7 +41,7 @@
             the patient is saved.
         </p>
 
-        <form method="post" th:action="@{/animals/save}" th:object="${animal}">
+        <form method="post" th:action="${formAction}" th:object="${animal}">
             <input th:field="*{id}" type="hidden"/>
 
             <div class="field-stack">
@@ -69,6 +69,7 @@
                     <select id="client" th:field="*{client.id}">
                         <option value="">Select a client</option>
                         <option th:each="clientOption : ${clients}"
+                                th:if="${isEmployee or isAdmin or (clientOption.email != null and clientOption.email.equalsIgnoreCase(#authentication.name))}"
                                 th:text="${clientOption.email != null and !#strings.isEmpty(clientOption.email)} ? |${clientOption.name} - ${clientOption.email}| : ${clientOption.name}"
                                 th:value="${clientOption.id}">
                             Client Name

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,26 +24,28 @@ public class ClientController {
     }
 
     @GetMapping
-    public String listClients(@RequestParam(defaultValue = "0") int page, Model model) {
-        log.info("Request to show clients page: {}", page);
-        Page<Client> clientPage = clientService.getAllClients(PageRequest.of(page, 5));
+    public String listClients(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "") String name,
+                              @RequestParam(defaultValue = "") String email,
+                              Model model) {
+        log.info("Request to show clients page: {}, name: {}, email: {}", page, name, email);
+        Page<Client> clientPage = clientService.searchClients(name, email, PageRequest.of(page, 5, Sort.by("name").ascending()));
 
         model.addAttribute("clientPage", clientPage);
-        model.addAttribute("currentPage", page);
+        addListAttributes(model, page, name, email);
         return "clients/list";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("client", new Client());
-        return "clients/form";
+        return showForm(model, new Client());
     }
 
-    @PostMapping("/save")
-    public String create(@Valid @ModelAttribute("client") Client client, BindingResult bindingResult) {
+    @PostMapping("/create")
+    public String create(@Valid @ModelAttribute("client") Client client, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for client creation");
-            return "clients/form";
+            return showForm(model, client);
         }
         clientService.create(client);
         return "redirect:/clients";
@@ -50,15 +53,39 @@ public class ClientController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Client client = clientService.getClientById(id);
-        model.addAttribute("client", client);
-        return "clients/form";
+        return showForm(model, clientService.getClientById(id));
+    }
+
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("client") Client client,
+                         BindingResult bindingResult,
+                         Model model) {
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed for client update with id: {}", id);
+            client.setId(id);
+            return showForm(model, client);
+        }
+        clientService.update(id, client);
+        return "redirect:/clients";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
         return "redirect:/clients";
+    }
+
+    private String showForm(Model model, Client client) {
+        model.addAttribute("client", client);
+        model.addAttribute("formAction", client.getId() == null ? "/clients/create" : "/clients/edit/" + client.getId());
+        return "clients/form";
+    }
+
+    private void addListAttributes(Model model, int page, String name, String email) {
+        model.addAttribute("currentPage", page);
+        model.addAttribute("nameFilter", name);
+        model.addAttribute("emailFilter", email);
     }
 }
 
