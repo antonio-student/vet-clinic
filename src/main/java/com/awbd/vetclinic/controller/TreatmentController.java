@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,12 +29,15 @@ public class TreatmentController {
     }
 
     @GetMapping
-    public String listTreatments(@RequestParam(defaultValue = "0") int page, Model model) {
-        log.info("Request to show treatments page: {}", page);
-        Page<Treatment> treatmentPage = treatmentService.getAllTreatments(PageRequest.of(page, 5));
+    public String listTreatments(@RequestParam(defaultValue = "0") int page,
+                                 @RequestParam(defaultValue = "treatmentDate") String sort,
+                                 @RequestParam(defaultValue = "desc") String dir,
+                                 Model model) {
+        log.info("Request to show treatments page: {}, sort: {}, dir: {}", page, sort, dir);
+        Page<Treatment> treatmentPage = treatmentService.getAllTreatments(PageRequest.of(page, 5, buildSort(sort, dir)));
 
         model.addAttribute("treatmentPage", treatmentPage);
-        model.addAttribute("currentPage", page);
+        addListAttributes(model, page, sort, dir);
         return "treatments/list";
     }
 
@@ -41,12 +45,10 @@ public class TreatmentController {
     public String showCreateForm(Model model) {
         Treatment treatment = new Treatment();
         treatment.setMedicalRecord(new MedicalRecord());
-        model.addAttribute("treatment", treatment);
-        populateFormOptions(model);
-        return "treatments/form";
+        return showForm(model, treatment);
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public String create(@Valid @ModelAttribute("treatment") Treatment treatment, BindingResult bindingResult, Model model) {
         if (treatment.getMedicalRecord() == null || treatment.getMedicalRecord().getId() == null) {
             bindingResult.rejectValue("medicalRecord", "treatment.medicalRecord", "Medical record is required");
@@ -56,8 +58,7 @@ public class TreatmentController {
             if (treatment.getMedicalRecord() == null) {
                 treatment.setMedicalRecord(new MedicalRecord());
             }
-            populateFormOptions(model);
-            return "treatments/form";
+            return showForm(model, treatment);
         }
         treatment.setMedicalRecord(medicalRecordService.getMedicalRecordById(treatment.getMedicalRecord().getId()));
         treatmentService.create(treatment);
@@ -66,10 +67,28 @@ public class TreatmentController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Treatment treatment = treatmentService.getTreatmentById(id);
-        model.addAttribute("treatment", treatment);
-        populateFormOptions(model);
-        return "treatments/form";
+        return showForm(model, treatmentService.getTreatmentById(id));
+    }
+
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("treatment") Treatment treatment,
+                         BindingResult bindingResult,
+                         Model model) {
+        if (treatment.getMedicalRecord() == null || treatment.getMedicalRecord().getId() == null) {
+            bindingResult.rejectValue("medicalRecord", "treatment.medicalRecord", "Medical record is required");
+        }
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed for treatment update with id: {}", id);
+            treatment.setId(id);
+            if (treatment.getMedicalRecord() == null) {
+                treatment.setMedicalRecord(new MedicalRecord());
+            }
+            return showForm(model, treatment);
+        }
+        treatment.setMedicalRecord(medicalRecordService.getMedicalRecordById(treatment.getMedicalRecord().getId()));
+        treatmentService.update(id, treatment);
+        return "redirect:/treatments";
     }
 
     @GetMapping("/delete/{id}")
@@ -80,6 +99,29 @@ public class TreatmentController {
 
     private void populateFormOptions(Model model) {
         model.addAttribute("medicalRecords", medicalRecordService.getAllMedicalRecords(Pageable.unpaged()).getContent());
+    }
+
+    private String showForm(Model model, Treatment treatment) {
+        model.addAttribute("treatment", treatment);
+        model.addAttribute("formAction", treatment.getId() == null ? "/treatments/create" : "/treatments/edit/" + treatment.getId());
+        populateFormOptions(model);
+        return "treatments/form";
+    }
+
+    private void addListAttributes(Model model, int page, String sort, String dir) {
+        model.addAttribute("currentPage", page);
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("currentDir", dir);
+    }
+
+    private Sort buildSort(String sort, String dir) {
+        String property = switch (sort) {
+            case "cost" -> "cost";
+            case "treatmentDate" -> "treatmentDate";
+            default -> "treatmentDate";
+        };
+        Sort.Direction direction = "desc".equalsIgnoreCase(dir) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return Sort.by(direction, property).and(Sort.by(Sort.Direction.DESC, "id"));
     }
 }
 

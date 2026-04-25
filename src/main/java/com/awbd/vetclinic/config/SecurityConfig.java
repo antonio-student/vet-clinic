@@ -1,23 +1,23 @@
 package com.awbd.vetclinic.config;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, OwnerAccessFilter ownerAccessFilter) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity http, OwnerAccessFilter ownerAccessFilter) {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/animals-ui.css", "/logo.svg", "/logo.png", "/error").permitAll()
+                        .requestMatchers("/login", "/favicon.ico", "/animals-ui.css", "/logo.svg", "/logo.png", "/error").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/access-denied").authenticated()
                         .requestMatchers("/doctors/delete/**").hasRole("ADMIN")
@@ -33,7 +33,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/medical-records/**").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers(HttpMethod.POST, "/medical-records/**").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers("/clients/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/clients/edit/**", "/clients/save", "/clients/new").hasAnyRole("EMPLOYEE", "ADMIN")
+                        .requestMatchers("/clients/new", "/clients/create", "/clients/edit/**").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers("/clients/**").hasAnyRole("EMPLOYEE", "ADMIN")
                         .requestMatchers("/animals/delete/**").hasRole("ADMIN")
                         .requestMatchers("/animals/edit/**").hasAnyRole("EMPLOYEE", "ADMIN")

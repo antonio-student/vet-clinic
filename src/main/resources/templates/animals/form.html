@@ -41,7 +41,7 @@
             the patient is saved.
         </p>
 
-        <form method="post" th:action="@{/animals/save}" th:object="${animal}">
+        <form method="post" th:action="${formAction}" th:object="${animal}">
             <input th:field="*{id}" type="hidden"/>
 
             <div class="field-stack">

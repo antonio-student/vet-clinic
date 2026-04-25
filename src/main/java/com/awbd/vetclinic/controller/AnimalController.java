@@ -4,16 +4,14 @@ import com.awbd.vetclinic.model.Animal;
 import com.awbd.vetclinic.model.Client;
 import com.awbd.vetclinic.model.MedicalRecord;
 import com.awbd.vetclinic.model.Treatment;
-import com.awbd.vetclinic.service.AnimalService;
-import com.awbd.vetclinic.service.AppointmentService;
-import com.awbd.vetclinic.service.ClientService;
-import com.awbd.vetclinic.service.MedicalRecordService;
-import com.awbd.vetclinic.service.TreatmentService;
+import com.awbd.vetclinic.service.*;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,26 +26,40 @@ public class AnimalController {
     private final MedicalRecordService medicalRecordService;
     private final TreatmentService treatmentService;
     private final AppointmentService appointmentService;
+    private final AccessControlService accessControlService;
 
     public AnimalController(AnimalService animalService,
                             ClientService clientService,
                             MedicalRecordService medicalRecordService,
                             TreatmentService treatmentService,
-                            AppointmentService appointmentService) {
+                            AppointmentService appointmentService,
+                            AccessControlService accessControlService) {
         this.animalService = animalService;
         this.clientService = clientService;
         this.medicalRecordService = medicalRecordService;
         this.treatmentService = treatmentService;
         this.appointmentService = appointmentService;
+        this.accessControlService = accessControlService;
     }
 
     @GetMapping
-    public String listAnimals(@RequestParam(defaultValue = "0") int page, Model model) {
-        log.info("Request to show animals page: {}", page);
-        Page<Animal> animalPage = animalService.getAllAnimals(PageRequest.of(page, 7));
+    public String listAnimals(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "") String name,
+                              @RequestParam(defaultValue = "") String species,
+                              Model model,
+                              Authentication authentication) {
+        log.info("Request to show animals page: {}, name: {}, species: {}", page, name, species);
+        String ownerUsername = accessControlService.isUser(authentication) ? authentication.getName() : null;
+        Page<Animal> animalPage = animalService.searchAnimals(
+                name,
+                species,
+                PageRequest.of(page, 7, Sort.by("name").ascending())
+        );
 
         model.addAttribute("animalPage", animalPage);
         model.addAttribute("currentPage", page);
+        model.addAttribute("nameFilter", name);
+        model.addAttribute("speciesFilter", species);
         return "animals/list"; // This matches the Thymeleaf template path
     }
 
@@ -55,13 +67,10 @@ public class AnimalController {
     public String showCreateForm(Model model) {
         Animal animal = new Animal();
         animal.setClient(new Client());
-        model.addAttribute("animal", animal);
-        model.addAttribute("hasMedicalRecord", false);
-        populateFormOptions(model);
-        return "animals/form";
+        return showForm(model, animal, false);
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public String create(@Valid @ModelAttribute("animal") Animal animal, BindingResult bindingResult, Model model) {
         if (animal.getClient() == null || animal.getClient().getId() == null) {
             bindingResult.rejectValue("client", "animal.client", "Owner is required");
@@ -72,9 +81,7 @@ public class AnimalController {
             if (animal.getClient() == null) {
                 animal.setClient(new Client());
             }
-            model.addAttribute("hasMedicalRecord", animal.getId() != null && medicalRecordService.findByAnimalId(animal.getId()).isPresent());
-            populateFormOptions(model);
-            return "animals/form"; // Return to form to show validation messages
+            return showForm(model, animal, animal.getId() != null && medicalRecordService.findByAnimalId(animal.getId()).isPresent());
         }
 
         animal.setClient(clientService.getClientById(animal.getClient().getId()));
@@ -92,10 +99,30 @@ public class AnimalController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         Animal animal = animalService.getAnimalById(id);
-        model.addAttribute("animal", animal);
-        model.addAttribute("hasMedicalRecord", medicalRecordService.findByAnimalId(id).isPresent());
-        populateFormOptions(model);
-        return "animals/form";
+        return showForm(model, animal, medicalRecordService.findByAnimalId(id).isPresent());
+    }
+
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("animal") Animal animal,
+                         BindingResult bindingResult,
+                         Model model) {
+        if (animal.getClient() == null || animal.getClient().getId() == null) {
+            bindingResult.rejectValue("client", "animal.client", "Owner is required");
+        }
+
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed for animal update with id: {}", id);
+            animal.setId(id);
+            if (animal.getClient() == null) {
+                animal.setClient(new Client());
+            }
+            return showForm(model, animal, medicalRecordService.findByAnimalId(id).isPresent());
+        }
+
+        animal.setClient(clientService.getClientById(animal.getClient().getId()));
+        animalService.update(id, animal);
+        return "redirect:/animals?updated=true";
     }
 
     @PostMapping("/{id}/medical-record")
@@ -145,6 +172,14 @@ public class AnimalController {
 
     private void populateFormOptions(Model model) {
         model.addAttribute("clients", clientService.getAllClients(Pageable.unpaged()).getContent());
+    }
+
+    private String showForm(Model model, Animal animal, boolean hasMedicalRecord) {
+        model.addAttribute("animal", animal);
+        model.addAttribute("hasMedicalRecord", hasMedicalRecord);
+        model.addAttribute("formAction", animal.getId() == null ? "/animals/create" : "/animals/edit/" + animal.getId());
+        populateFormOptions(model);
+        return "animals/form";
     }
 
     private void populatePatientChart(Model model, Animal animal, QuickTreatmentForm quickTreatment) {

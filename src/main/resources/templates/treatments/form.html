@@ -13,10 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
-            <a class="ribbon-link" th:href="@{/animals}">Patient Charts</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -26,7 +25,7 @@
             <div><h1 class="page-title page-title-small" th:text="${treatment.id == null ? 'New Treatment' : 'Edit Treatment'}">Treatment</h1></div>
         </div>
         <p class="form-intro">Treatments should be linked to a medical record so all interventions remain attached to the patient history they belong to.</p>
-        <form method="post" th:action="@{/treatments/save}" th:object="${treatment}">
+        <form method="post" th:action="${formAction}" th:object="${treatment}">
             <input th:field="*{id}" type="hidden">
             <div class="field-stack">
                 <div class="field">

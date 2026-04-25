@@ -13,10 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
-            <a class="ribbon-link" th:href="@{/animals}">Patient Charts</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -26,7 +25,7 @@
             <div><h1 class="page-title page-title-small" th:text="${medicalRecord.id == null ? 'New Medical Record' : 'Edit Medical Record'}">Medical Record</h1></div>
         </div>
         <p class="form-intro">Medical records anchor treatment history for a single patient, so select the patient first and then store the main notes.</p>
-        <form method="post" th:action="@{/medical-records/save}" th:object="${medicalRecord}">
+        <form method="post" th:action="${formAction}" th:object="${medicalRecord}">
             <input th:field="*{id}" type="hidden">
             <div class="field-stack">
                 <div class="field">

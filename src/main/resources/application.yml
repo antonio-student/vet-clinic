@@ -3,6 +3,8 @@ spring:
     active: dev
   application:
     name: vet-clinic
+  mvc:
+    throw-exception-if-no-handler-found: true
   docker:
     compose:
       lifecycle-management: start_and_stop

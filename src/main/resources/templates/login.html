@@ -12,18 +12,18 @@
         <img alt="Buddy Care logo" class="brand-logo" style="height: 88px;" th:src="@{/logo.svg}">
         <h1 class="page-title page-title-small" style="margin-top: 18px;">Welcome to Buddy Care</h1>
         <p class="page-subtitle">
-            A single workspace for patient intake, owner management, doctor scheduling, medical records, specialties,
-            and treatment history.
+            Manage patient intake, owner records, doctor scheduling, medical charts, and treatment history from one
+            clean clinic workspace.
         </p>
 
         <div class="highlight-list">
             <div class="highlight-item">
-                <p class="highlight-title">Consistent clinic UI</p>
-                <p class="card-copy">All major modules now share the same visual language as the finished animal screens.</p>
+                <p class="highlight-title">Fast daily operations</p>
+                <p class="card-copy">Move quickly between patients, appointments, doctors, and care history without losing context.</p>
             </div>
             <div class="highlight-item">
-                <p class="highlight-title">Dashboard after authentication</p>
-                <p class="card-copy">Users land on the command center page immediately after login instead of dropping into a random entity route.</p>
+                <p class="highlight-title">Built for the clinic front desk</p>
+                <p class="card-copy">Keep appointments, patient charts, and owner contacts aligned in one predictable workflow.</p>
             </div>
         </div>
     </section>
@@ -48,29 +48,33 @@
             <div class="field-stack">
                 <div class="field">
                     <label for="username">Username</label>
-                    <input id="username" name="username" placeholder="admin" type="text">
+                    <input autocomplete="username" id="username" name="username" placeholder="admin" type="text">
                 </div>
 
                 <div class="field">
                     <label for="password">Password</label>
-                    <input id="password" name="password" placeholder="admin123" type="password">
+                    <input autocomplete="current-password" id="password" name="password" placeholder="admin123" type="password">
                 </div>
             </div>
 
-            <div class="field" style="margin-top: 18px;">
-                <label for="remember-me" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+            <div class="remember-shell">
+                <label class="remember-toggle" for="remember-me">
                     <input id="remember-me" name="remember-me" type="checkbox">
-                    <span>Remember me for 14 days</span>
+                    <span class="remember-box" aria-hidden="true"></span>
+                    <span class="remember-copy">
+                        <strong>Remember me</strong>
+                        <span>Keep this device signed in for 14 days.</span>
+                    </span>
                 </label>
             </div>
 
             <div class="form-actions" style="margin-top: 24px;">
-                <button class="btn btn-primary" type="submit">Login</button>
+                <button class="btn btn-primary" type="submit">Sign In</button>
             </div>
         </form>
 
         <div class="login-note" style="margin-top: 18px;">
-            Demo accounts: <strong>admin</strong> / <strong>admin123</strong>, <strong>employee</strong> / <strong>employee123</strong>, and <strong>user</strong> / <strong>user123</strong>
+            Demo accounts: <strong>admin</strong> / <strong>admin123</strong>, <strong>employee</strong> / <strong>employee123</strong>, <strong>user</strong> / <strong>user123</strong>
         </div>
     </section>
 </main>

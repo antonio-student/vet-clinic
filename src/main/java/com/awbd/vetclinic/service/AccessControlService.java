@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AccessControlService {
@@ -89,10 +90,21 @@ public class AccessControlService {
     private boolean isOwnedByUsername(Animal animal, String username) {
         return animal.getClient() != null
                 && animal.getClient().getEmail() != null
-                && animal.getClient().getEmail().equalsIgnoreCase(username);
+                && matchesUsername(animal.getClient().getEmail(), username);
+    }
+
+    public boolean matchesUsername(String email, String username) {
+        if (email == null || username == null || username.isBlank()) {
+            return false;
+        }
+        if (email.equalsIgnoreCase(username)) {
+            return true;
+        }
+        int atIndex = email.indexOf('@');
+        return atIndex > 0 && email.substring(0, atIndex).equalsIgnoreCase(username);
     }
 
     private boolean hasRole(Authentication authentication, String role) {
-        return authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(role));
+        return authentication.getAuthorities().stream().anyMatch(grantedAuthority -> Objects.equals(grantedAuthority.getAuthority(), role));
     }
 }

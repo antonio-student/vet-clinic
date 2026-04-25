@@ -34,6 +34,20 @@
                 <a class="btn btn-primary" th:href="@{/animals/new}">Add New Patient</a>
             </div>
         </div>
+        <div class="alert alert-success" th:if="${param.updated}">
+            Patient details were updated successfully.
+        </div>
+        <form class="toolbar" method="get" th:action="@{/animals}">
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="animalName">Name contains</label>
+                <input class="toolbar-input" id="animalName" name="name" placeholder="Search patient name" th:value="${nameFilter}" type="text">
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="animalSpecies">Species contains</label>
+                <input class="toolbar-input" id="animalSpecies" name="species" placeholder="Search species" th:value="${speciesFilter}" type="text">
+            </div>
+            <button class="btn btn-secondary toolbar-btn" type="submit">Apply</button>
+        </form>
 
         <div class="table-shell" th:if="${!animalPage.isEmpty()}">
             <div class="table-head">
@@ -44,7 +58,7 @@
                 <div style="text-align: right;">Actions</div>
             </div>
 
-            <div class="table-row" th:each="animal : ${animalPage.content}" th:if="${!isUser or animal.client == null or animal.client.email == null or animal.client.email.equalsIgnoreCase(#authentication.name)}">
+            <div class="table-row" th:each="animal : ${animalPage.content}">
                 <div class="name-cell">
                     <div class="name-main" th:text="${animal.name}">Luna</div>
                 </div>
@@ -86,7 +100,7 @@
                 <a class="page-chip"
                    th:classappend="${currentPage == i} ? ' active' : ''"
                    th:each="i : ${#numbers.sequence(0, animalPage.totalPages - 1)}"
-                   th:href="@{/animals(page=${i})}"
+                   th:href="@{/animals(page=${i}, name=${nameFilter}, species=${speciesFilter})}"
                    th:text="${i + 1}">
                     1
                 </a>

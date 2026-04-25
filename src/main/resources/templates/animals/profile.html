@@ -15,9 +15,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link active" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -80,38 +80,41 @@
                     <span class="detail-value" th:text="${medicalRecord != null and !#strings.isEmpty(medicalRecord.generalNotes) ? medicalRecord.generalNotes : 'No general notes added yet.'}">Notes</span>
                 </div>
 
-                <div class="panel panel-section" style="padding: 20px;">
-                    <div class="panel-header">
-                        <div>
-                            <h3 class="section-title">Quick add treatment</h3>
-                            <p class="section-copy">Record a new treatment without leaving the patient chart.</p>
-                        </div>
+                <details class="accordion-card panel-section" th:open="${#fields.hasErrors('description') or #fields.hasErrors('treatmentDate') or #fields.hasErrors('cost')}">
+                    <summary class="accordion-summary">
+                        <span>
+                            <strong>Quick add treatment</strong>
+                            <span class="helper-text">Record a new treatment without leaving the patient chart.</span>
+                        </span>
+                        <span class="accordion-toggle" th:text="${#fields.hasErrors('description') or #fields.hasErrors('treatmentDate') or #fields.hasErrors('cost') ? 'Opened' : 'Open'}">Open</span>
+                    </summary>
+                    <div class="accordion-body">
+                        <form method="post" th:action="@{/animals/{id}/treatments(id=${animal.id})}" th:object="${quickTreatment}">
+                            <div class="field-stack">
+                                <div class="field">
+                                    <label for="description">Treatment description</label>
+                                    <input id="description" placeholder="Ex: Vaccination booster" th:field="*{description}" type="text">
+                                    <span class="error-text" th:errors="*{description}" th:if="${#fields.hasErrors('description')}"></span>
+                                </div>
+                                <div class="split-grid">
+                                    <div class="field">
+                                        <label for="treatmentDate">Treatment date</label>
+                                        <input id="treatmentDate" th:field="*{treatmentDate}" type="date">
+                                        <span class="error-text" th:errors="*{treatmentDate}" th:if="${#fields.hasErrors('treatmentDate')}"></span>
+                                    </div>
+                                    <div class="field">
+                                        <label for="cost">Cost</label>
+                                        <input id="cost" min="0" step="0.01" th:field="*{cost}" type="number">
+                                        <span class="error-text" th:errors="*{cost}" th:if="${#fields.hasErrors('cost')}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions" style="margin-top: 22px;">
+                                <button class="btn btn-primary" type="submit">Save Treatment</button>
+                            </div>
+                        </form>
                     </div>
-                    <form method="post" th:action="@{/animals/{id}/treatments(id=${animal.id})}" th:object="${quickTreatment}">
-                        <div class="field-stack">
-                            <div class="field">
-                                <label for="description">Treatment description</label>
-                                <input id="description" placeholder="Ex: Vaccination booster" th:field="*{description}" type="text">
-                                <span class="error-text" th:errors="*{description}" th:if="${#fields.hasErrors('description')}"></span>
-                            </div>
-                            <div class="split-grid">
-                                <div class="field">
-                                    <label for="treatmentDate">Treatment date</label>
-                                    <input id="treatmentDate" th:field="*{treatmentDate}" type="date">
-                                    <span class="error-text" th:errors="*{treatmentDate}" th:if="${#fields.hasErrors('treatmentDate')}"></span>
-                                </div>
-                                <div class="field">
-                                    <label for="cost">Cost</label>
-                                    <input id="cost" min="0" step="0.01" th:field="*{cost}" type="number">
-                                    <span class="error-text" th:errors="*{cost}" th:if="${#fields.hasErrors('cost')}"></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-actions" style="margin-top: 22px;">
-                            <button class="btn btn-primary" type="submit">Save Treatment</button>
-                        </div>
-                    </form>
-                </div>
+                </details>
 
                 <div class="panel-section">
                     <h3 class="section-title">Treatment history</h3>

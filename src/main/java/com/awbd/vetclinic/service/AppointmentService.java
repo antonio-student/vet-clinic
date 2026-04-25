@@ -5,8 +5,11 @@ import com.awbd.vetclinic.repository.AppointmentRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +30,18 @@ public class AppointmentService extends BaseService<Appointment> {
     public Page<Appointment> getAllAppointments(Pageable pageable) {
         log.info("Fetching all appointments with pagination");
         return getAllEntities(pageable);
+    }
+
+    public Page<Appointment> searchAppointments(Long animalId, LocalDate appointmentDate, Pageable pageable) {
+        log.info("Searching appointments with filters animalId={}, appointmentDate={}", animalId, appointmentDate);
+        List<Specification<Appointment>> specifications = new ArrayList<>();
+        addIfPresent(specifications, hasAnimalId(animalId));
+        addIfPresent(specifications, hasAppointmentDate(appointmentDate));
+        Specification<Appointment> specification = specifications.stream()
+                .reduce(Specification::and)
+                .orElse(null);
+        assert specification != null;
+        return appointmentRepository.findAll(specification, pageable);
     }
 
     public Appointment getAppointmentById(Long id) {
@@ -54,6 +69,45 @@ public class AppointmentService extends BaseService<Appointment> {
     public void deleteAppointment(Long id) {
         log.info("Deleting appointment with id: {}", id);
         deleteEntity(id);
+    }
+
+    private Specification<Appointment> hasAnimalId(Long animalId) {
+        if (animalId == null) {
+            return null;
+        }
+        return (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.join("animal").get("id"), animalId);
+    }
+
+    private Specification<Appointment> hasAppointmentDate(LocalDate appointmentDate) {
+        if (appointmentDate == null) {
+            return null;
+        }
+        return (root, query, criteriaBuilder) -> criteriaBuilder.between(
+                root.get("appointmentDate"),
+                appointmentDate.atStartOfDay(),
+                appointmentDate.plusDays(1).atStartOfDay().minusNanos(1)
+        );
+    }
+
+    private Specification<Appointment> ownedByUsername(String username) {
+        if (username == null || username.isBlank()) {
+            return null;
+        }
+
+        String normalizedUsername = username.trim().toLowerCase();
+        return (root, query, criteriaBuilder) -> {
+            var emailPath = criteriaBuilder.lower(root.join("animal").join("client").get("email"));
+            return criteriaBuilder.or(
+                    criteriaBuilder.equal(emailPath, normalizedUsername),
+                    criteriaBuilder.like(emailPath, normalizedUsername + "@%")
+            );
+        };
+    }
+
+    private void addIfPresent(List<Specification<Appointment>> specifications, Specification<Appointment> specification) {
+        if (specification != null) {
+            specifications.add(specification);
+        }
     }
 }
 

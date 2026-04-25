@@ -13,8 +13,8 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link active" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
@@ -30,6 +30,23 @@
                 <a class="btn btn-primary" th:href="@{/appointments/new}">Create Appointment</a>
             </div>
         </div>
+        <form class="toolbar" method="get" th:action="@{/appointments}">
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="appointmentAnimalFilter">Patient</label>
+                <select class="toolbar-select" id="appointmentAnimalFilter" name="animalId">
+                    <option value="">All patients</option>
+                    <option th:each="animalOption : ${filterAnimals}"
+                            th:selected="${selectedAnimalId != null and selectedAnimalId == animalOption.id}"
+                            th:text="${animalOption.name + ' - ' + animalOption.species}"
+                            th:value="${animalOption.id}">Patient</option>
+                </select>
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="appointmentDateFilter">Date</label>
+                <input class="toolbar-input" id="appointmentDateFilter" name="appointmentDate" th:value="${appointmentDateFilter}" type="date">
+            </div>
+            <button class="btn btn-secondary toolbar-btn" type="submit">Apply</button>
+        </form>
         <div class="table-shell" th:if="${!appointmentPage.isEmpty()}">
             <div class="table-head">
                 <div>Patient</div>
@@ -38,7 +55,7 @@
                 <div>Status</div>
                 <div style="text-align: right;">Actions</div>
             </div>
-            <div class="table-row" th:each="appointment : ${appointmentPage.content}" th:if="${!isUser or appointment.animal == null or appointment.animal.client == null or appointment.animal.client.email == null or appointment.animal.client.email.equalsIgnoreCase(#authentication.name)}">
+            <div class="table-row" th:each="appointment : ${appointmentPage.content}">
                 <div class="name-cell">
                     <div class="name-main" th:text="${appointment.animal != null ? appointment.animal.name : 'Unknown patient'}">Luna</div>
                     <div class="helper-text" th:text="${appointment.reason}">Vaccination</div>
@@ -61,7 +78,7 @@
         </div>
         <div class="panel-footer">
             <div class="pagination" th:if="${appointmentPage.totalPages > 1}">
-                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, appointmentPage.totalPages - 1)}" th:href="@{/appointments(page=${i})}" th:text="${i + 1}">1</a>
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, appointmentPage.totalPages - 1)}" th:href="@{/appointments(page=${i}, animalId=${selectedAnimalId}, appointmentDate=${appointmentDateFilter})}" th:text="${i + 1}">1</a>
             </div>
             <div class="panel-footnote">Total registered: <span th:text="${appointmentPage.totalElements}">0</span></div>
         </div>

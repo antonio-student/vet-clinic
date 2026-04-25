@@ -1,8 +1,9 @@
 package com.awbd.vetclinic.controller;
 
-import com.awbd.vetclinic.model.Appointment;
 import com.awbd.vetclinic.model.Animal;
+import com.awbd.vetclinic.model.Appointment;
 import com.awbd.vetclinic.model.Doctor;
+import com.awbd.vetclinic.service.AccessControlService;
 import com.awbd.vetclinic.service.AnimalService;
 import com.awbd.vetclinic.service.AppointmentService;
 import com.awbd.vetclinic.service.DoctorService;
@@ -11,10 +12,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Controller
@@ -24,20 +30,38 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final DoctorService doctorService;
     private final AnimalService animalService;
+    private final AccessControlService accessControlService;
 
-    public AppointmentController(AppointmentService appointmentService, DoctorService doctorService, AnimalService animalService) {
+    public AppointmentController(AppointmentService appointmentService,
+                                 DoctorService doctorService,
+                                 AnimalService animalService,
+                                 AccessControlService accessControlService) {
         this.appointmentService = appointmentService;
         this.doctorService = doctorService;
         this.animalService = animalService;
+        this.accessControlService = accessControlService;
     }
 
     @GetMapping
-    public String listAppointments(@RequestParam(defaultValue = "0") int page, Model model) {
-        log.info("Request to show appointments page: {}", page);
-        Page<Appointment> appointmentPage = appointmentService.getAllAppointments(PageRequest.of(page, 5));
+    public String listAppointments(@RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(required = false) Long animalId,
+                                   @RequestParam(required = false) LocalDate appointmentDate,
+                                   Model model,
+                                   Authentication authentication) {
+        log.info("Request to show appointments page: {}, animalId: {}, appointmentDate: {}", page, animalId, appointmentDate);
+        String ownerUsername = accessControlService.isUser(authentication) ? authentication.getName() : null;
+        Page<Appointment> appointmentPage = appointmentService.searchAppointments(
+                animalId,
+                appointmentDate,
+                PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "appointmentDate"))
+        );
 
         model.addAttribute("appointmentPage", appointmentPage);
         model.addAttribute("currentPage", page);
+        model.addAttribute("selectedAnimalId", animalId);
+        model.addAttribute("appointmentDateFilter", appointmentDate == null ? "" : appointmentDate.toString());
+        Page<Animal> availableAnimals = animalService.getAllAnimals(Pageable.unpaged());
+        model.addAttribute("filterAnimals", accessControlService.filterAnimals(availableAnimals, authentication).getContent());
         return "appointments/list";
     }
 
@@ -46,12 +70,10 @@ public class AppointmentController {
         Appointment appointment = new Appointment();
         appointment.setDoctor(new Doctor());
         appointment.setAnimal(new Animal());
-        model.addAttribute("appointment", appointment);
-        populateFormOptions(model);
-        return "appointments/form";
+        return showForm(model, appointment);
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public String create(@Valid @ModelAttribute("appointment") Appointment appointment, BindingResult bindingResult, Model model) {
         if (appointment.getDoctor() == null || appointment.getDoctor().getId() == null) {
             bindingResult.rejectValue("doctor", "appointment.doctor", "Doctor is required");
@@ -67,8 +89,7 @@ public class AppointmentController {
             if (appointment.getAnimal() == null) {
                 appointment.setAnimal(new Animal());
             }
-            populateFormOptions(model);
-            return "appointments/form";
+            return showForm(model, appointment);
         }
         appointment.setDoctor(doctorService.getDoctorById(appointment.getDoctor().getId()));
         appointment.setAnimal(animalService.getAnimalById(appointment.getAnimal().getId()));
@@ -78,10 +99,35 @@ public class AppointmentController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Appointment appointment = appointmentService.getAppointmentById(id);
-        model.addAttribute("appointment", appointment);
-        populateFormOptions(model);
-        return "appointments/form";
+        return showForm(model, appointmentService.getAppointmentById(id));
+    }
+
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("appointment") Appointment appointment,
+                         BindingResult bindingResult,
+                         Model model) {
+        if (appointment.getDoctor() == null || appointment.getDoctor().getId() == null) {
+            bindingResult.rejectValue("doctor", "appointment.doctor", "Doctor is required");
+        }
+        if (appointment.getAnimal() == null || appointment.getAnimal().getId() == null) {
+            bindingResult.rejectValue("animal", "appointment.animal", "Patient is required");
+        }
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed for appointment update with id: {}", id);
+            appointment.setId(id);
+            if (appointment.getDoctor() == null) {
+                appointment.setDoctor(new Doctor());
+            }
+            if (appointment.getAnimal() == null) {
+                appointment.setAnimal(new Animal());
+            }
+            return showForm(model, appointment);
+        }
+        appointment.setDoctor(doctorService.getDoctorById(appointment.getDoctor().getId()));
+        appointment.setAnimal(animalService.getAnimalById(appointment.getAnimal().getId()));
+        appointmentService.update(id, appointment);
+        return "redirect:/appointments";
     }
 
     @GetMapping("/delete/{id}")
@@ -93,6 +139,18 @@ public class AppointmentController {
     private void populateFormOptions(Model model) {
         model.addAttribute("doctors", doctorService.getAllDoctors(Pageable.unpaged()).getContent());
         model.addAttribute("animals", animalService.getAllAnimals(Pageable.unpaged()).getContent());
+    }
+
+    private String showForm(Model model, Appointment appointment) {
+        model.addAttribute("appointment", appointment);
+        model.addAttribute("formAction", appointment.getId() == null ? "/appointments/create" : "/appointments/edit/" + appointment.getId());
+        model.addAttribute("selectedAnimalId", appointment.getAnimal() != null ? appointment.getAnimal().getId() : null);
+        model.addAttribute("selectedDoctorId", appointment.getDoctor() != null ? appointment.getDoctor().getId() : null);
+        model.addAttribute("appointmentDateValue", appointment.getAppointmentDate() == null
+                ? ""
+                : appointment.getAppointmentDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")));
+        populateFormOptions(model);
+        return "appointments/form";
     }
 }
 

@@ -13,10 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
-            <a class="ribbon-link" th:href="@{/animals}">Patient Charts</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>
@@ -31,6 +30,23 @@
                 <a class="btn btn-primary" th:href="@{/treatments/new}">Create Treatment</a>
             </div>
         </div>
+        <form class="toolbar" method="get" th:action="@{/treatments}">
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="treatmentSort">Sort by</label>
+                <select class="toolbar-select" id="treatmentSort" name="sort">
+                    <option th:selected="${currentSort == 'treatmentDate'}" value="treatmentDate">Treatment date</option>
+                    <option th:selected="${currentSort == 'cost'}" value="cost">Cost</option>
+                </select>
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="treatmentDir">Direction</label>
+                <select class="toolbar-select" id="treatmentDir" name="dir">
+                    <option th:selected="${currentDir == 'desc'}" value="desc">Descending</option>
+                    <option th:selected="${currentDir == 'asc'}" value="asc">Ascending</option>
+                </select>
+            </div>
+            <button class="btn btn-secondary toolbar-btn" type="submit">Apply</button>
+        </form>
         <div class="table-shell" th:if="${!treatmentPage.isEmpty()}">
             <div class="table-head">
                 <div>Description</div>
@@ -59,7 +75,7 @@
         </div>
         <div class="panel-footer">
             <div class="pagination" th:if="${treatmentPage.totalPages > 1}">
-                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, treatmentPage.totalPages - 1)}" th:href="@{/treatments(page=${i})}" th:text="${i + 1}">1</a>
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, treatmentPage.totalPages - 1)}" th:href="@{/treatments(page=${i}, sort=${currentSort}, dir=${currentDir})}" th:text="${i + 1}">1</a>
             </div>
             <div class="panel-footnote">Total registered: <span th:text="${treatmentPage.totalElements}">0</span></div>
         </div>

@@ -13,9 +13,9 @@
         <div class="ribbon-links">
             <a class="ribbon-link" th:href="@{/}">Dashboard</a>
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctor Setup</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
     </div>
 </nav>

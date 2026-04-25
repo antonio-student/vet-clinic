@@ -41,12 +41,10 @@ public class MedicalRecordController {
     public String showCreateForm(Model model) {
         MedicalRecord medicalRecord = new MedicalRecord();
         medicalRecord.setAnimal(new Animal());
-        model.addAttribute("medicalRecord", medicalRecord);
-        populateFormOptions(model);
-        return "medical-records/form";
+        return showForm(model, medicalRecord);
     }
 
-    @PostMapping("/save")
+    @PostMapping("/create")
     public String create(@Valid @ModelAttribute("medicalRecord") MedicalRecord medicalRecord,
                          BindingResult bindingResult,
                          Model model) {
@@ -58,8 +56,7 @@ public class MedicalRecordController {
             if (medicalRecord.getAnimal() == null) {
                 medicalRecord.setAnimal(new Animal());
             }
-            populateFormOptions(model);
-            return "medical-records/form";
+            return showForm(model, medicalRecord);
         }
         medicalRecord.setAnimal(animalService.getAnimalById(medicalRecord.getAnimal().getId()));
         medicalRecordService.create(medicalRecord);
@@ -68,10 +65,28 @@ public class MedicalRecordController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        MedicalRecord medicalRecord = medicalRecordService.getMedicalRecordById(id);
-        model.addAttribute("medicalRecord", medicalRecord);
-        populateFormOptions(model);
-        return "medical-records/form";
+        return showForm(model, medicalRecordService.getMedicalRecordById(id));
+    }
+
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("medicalRecord") MedicalRecord medicalRecord,
+                         BindingResult bindingResult,
+                         Model model) {
+        if (medicalRecord.getAnimal() == null || medicalRecord.getAnimal().getId() == null) {
+            bindingResult.rejectValue("animal", "medicalRecord.animal", "Patient is required");
+        }
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed for medical record update with id: {}", id);
+            medicalRecord.setId(id);
+            if (medicalRecord.getAnimal() == null) {
+                medicalRecord.setAnimal(new Animal());
+            }
+            return showForm(model, medicalRecord);
+        }
+        medicalRecord.setAnimal(animalService.getAnimalById(medicalRecord.getAnimal().getId()));
+        medicalRecordService.update(id, medicalRecord);
+        return "redirect:/medical-records";
     }
 
     @GetMapping("/delete/{id}")
@@ -82,6 +97,13 @@ public class MedicalRecordController {
 
     private void populateFormOptions(Model model) {
         model.addAttribute("animals", animalService.getAllAnimals(Pageable.unpaged()).getContent());
+    }
+
+    private String showForm(Model model, MedicalRecord medicalRecord) {
+        model.addAttribute("medicalRecord", medicalRecord);
+        model.addAttribute("formAction", medicalRecord.getId() == null ? "/medical-records/create" : "/medical-records/edit/" + medicalRecord.getId());
+        populateFormOptions(model);
+        return "medical-records/form";
     }
 }
 

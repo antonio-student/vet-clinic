@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class OwnerAccessFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String path = request.getServletPath();
@@ -44,12 +45,12 @@ public class OwnerAccessFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (isAnimalCreateRequest(request, path) && !canCreateAnimal(request, authentication)) {
+        if (isAnimalWriteRequest(request, path) && !canCreateAnimal(request, authentication)) {
             response.sendRedirect(request.getContextPath() + "/access-denied");
             return;
         }
 
-        if (isAppointmentSaveRequest(request, path) && !canUseAppointmentAnimal(request, authentication)) {
+        if (isAppointmentWriteRequest(request, path) && !canUseAppointmentAnimal(request, authentication)) {
             response.sendRedirect(request.getContextPath() + "/access-denied");
             return;
         }
@@ -62,14 +63,14 @@ public class OwnerAccessFilter extends OncePerRequestFilter {
                 && path.matches("^/animals/\\d+$");
     }
 
-    private boolean isAnimalCreateRequest(HttpServletRequest request, String path) {
+    private boolean isAnimalWriteRequest(HttpServletRequest request, String path) {
         return "POST".equalsIgnoreCase(request.getMethod())
-                && "/animals/save".equals(path);
+                && ("/animals/create".equals(path) || path.matches("^/animals/edit/\\d+$"));
     }
 
-    private boolean isAppointmentSaveRequest(HttpServletRequest request, String path) {
+    private boolean isAppointmentWriteRequest(HttpServletRequest request, String path) {
         return "POST".equalsIgnoreCase(request.getMethod())
-                && "/appointments/save".equals(path);
+                && ("/appointments/create".equals(path) || path.matches("^/appointments/edit/\\d+$"));
     }
 
     private boolean canAccessAnimalPath(String path, Authentication authentication) {
@@ -85,7 +86,7 @@ public class OwnerAccessFilter extends OncePerRequestFilter {
 
         Long clientId = Long.parseLong(clientIdRaw);
         return clientRepository.findById(clientId)
-                .map(client -> client.getEmail() != null && client.getEmail().equalsIgnoreCase(authentication.getName()))
+                .map(client -> accessControlService.matchesUsername(client.getEmail(), authentication.getName()))
                 .orElse(false);
     }
 

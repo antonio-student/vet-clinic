@@ -34,15 +34,14 @@ public class SpecialtyController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("specialty", new Specialty());
-        return "specialties/form";
+        return showForm(model, new Specialty());
     }
 
-    @PostMapping("/save")
-    public String create(@Valid @ModelAttribute("specialty") Specialty specialty, BindingResult bindingResult) {
+    @PostMapping("/create")
+    public String create(@Valid @ModelAttribute("specialty") Specialty specialty, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for specialty creation");
-            return "specialties/form";
+            return showForm(model, specialty);
         }
         specialtyService.create(specialty);
         return "redirect:/specialties";
@@ -50,15 +49,33 @@ public class SpecialtyController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Specialty specialty = specialtyService.getSpecialtyById(id);
-        model.addAttribute("specialty", specialty);
-        return "specialties/form";
+        return showForm(model, specialtyService.getSpecialtyById(id));
+    }
+
+    @PostMapping("/edit/{id}")
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("specialty") Specialty specialty,
+                         BindingResult bindingResult,
+                         Model model) {
+        if (bindingResult.hasErrors()) {
+            log.warn("Validation failed for specialty update with id: {}", id);
+            specialty.setId(id);
+            return showForm(model, specialty);
+        }
+        specialtyService.update(id, specialty);
+        return "redirect:/specialties";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteSpecialty(@PathVariable Long id) {
         specialtyService.deleteSpecialty(id);
         return "redirect:/specialties";
+    }
+
+    private String showForm(Model model, Specialty specialty) {
+        model.addAttribute("specialty", specialty);
+        model.addAttribute("formAction", specialty.getId() == null ? "/specialties/create" : "/specialties/edit/" + specialty.getId());
+        return "specialties/form";
     }
 }
 
