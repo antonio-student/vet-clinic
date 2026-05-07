@@ -39,7 +39,6 @@ public class AnimalService extends BaseService<Animal> {
         Specification<Animal> specification = specifications.stream()
                 .reduce(Specification::and)
                 .orElse(null);
-        assert specification != null;
         return animalRepository.findAll(specification, pageable);
     }
 

@@ -20,13 +20,13 @@ tratamentelor.
 
 ```mermaid
 erDiagram
-    CLIENT ||--o{ ANIMAL : owns
-    ANIMAL ||--o{ APPOINTMENT : "has scheduled"
-    DOCTOR ||--o{ APPOINTMENT : "attends to"
-    ANIMAL ||--|| MEDICAL_RECORD : "has one"
-    MEDICAL_RECORD ||--o{ TREATMENT : contains
-    DOCTOR }o--o{ SPECIALTY : "specializes in"
-    APP_USER ||--|| CLIENT : "associated with"
+    CLIENT ||--o{ ANIMAL : detine
+    ANIMAL ||--o{ APPOINTMENT : "are programari"
+    DOCTOR ||--o{ APPOINTMENT : "participa la"
+    ANIMAL ||--|| MEDICAL_RECORD : "are fisa"
+    MEDICAL_RECORD ||--o{ TREATMENT : contine
+    DOCTOR }o--o{ SPECIALTY : "are specializari"
+    APP_USER ||--|| CLIENT : "asociat cu"
 ```
 
 ### Entități Principale:

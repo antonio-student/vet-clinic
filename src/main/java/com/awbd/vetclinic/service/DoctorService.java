@@ -39,7 +39,6 @@ public class DoctorService extends BaseService<Doctor> {
         Specification<Doctor> specification = specifications.stream()
                 .reduce(Specification::and)
                 .orElse(null);
-        assert specification != null;
         return doctorRepository.findAll(specification, pageable);
     }
 
