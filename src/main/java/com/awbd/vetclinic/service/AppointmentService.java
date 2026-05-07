@@ -40,7 +40,6 @@ public class AppointmentService extends BaseService<Appointment> {
         Specification<Appointment> specification = specifications.stream()
                 .reduce(Specification::and)
                 .orElse(null);
-        assert specification != null;
         return appointmentRepository.findAll(specification, pageable);
     }
 
