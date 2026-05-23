@@ -1,81 +1,117 @@
-# 🐾 Vet Clinic Management System
+# Vet Clinic
 
-O aplicație web modernă pentru gestionarea fluxurilor de lucru într-o clinică veterinară. Proiect realizat pentru cursul
-de **Aplicații Web cu Arhitectură de Microservicii**.
+Aplicatie web pentru gestionarea unei clinici veterinare, realizata pentru proiectul de la disciplina AWBD.
 
-## 📖 Descriere
+## Descriere
 
-Platforma permite gestionarea completă a unei clinici veterinare, oferind funcționalități pentru medici, angajați și
-proprietari de animale. Sistemul automatizează procesele de programare, evidența istoricului medical și gestionarea
-tratamentelor.
+Aplicatia permite administrarea entitatilor principale dintr-o clinica veterinara:
+- clienti
+- animale
+- programari
+- medici
+- fise medicale
+- tratamente
+- specializari
 
-## 🛠️ Tehnologii Utilizate
+Aplicatia include autentificare, autorizare pe roluri, validare, paginare, sortare si interfata realizata cu Thymeleaf.
 
-- **Backend:** Java 17, Spring Boot 3, Spring Data JPA, Spring Security
-- **Frontend:** Thymeleaf, CSS3
-- **Bază de date:** PostgreSQL (Dev), H2 (Test)
-- **Alte instrumente:** Docker Compose, Lombok, SLF4J/Logback, SpringDoc OpenAPI (Swagger)
+## Tehnologii
 
-## 📊 Model de Date (Diagrama ER)
+- Java 21
+- Spring Boot 4.0.3
+- Spring MVC
+- Spring Data JPA
+- Spring Security
+- Thymeleaf
+- PostgreSQL pentru mediul `dev`
+- H2 pentru mediul `test`
+- Logback
+- Docker Compose
+
+## Model de date
+
+Diagrama ER folosita in proiect:
 
 ```mermaid
 erDiagram
     CLIENT ||--o{ ANIMAL : detine
-    ANIMAL ||--o{ APPOINTMENT : "are programari"
-    DOCTOR ||--o{ APPOINTMENT : "participa la"
-    ANIMAL ||--|| MEDICAL_RECORD : "are fisa"
+    ANIMAL ||--o{ APPOINTMENT : are
+    DOCTOR ||--o{ APPOINTMENT : participa_la
+    ANIMAL ||--|| MEDICAL_RECORD : are
     MEDICAL_RECORD ||--o{ TREATMENT : contine
-    DOCTOR }o--o{ SPECIALTY : "are specializari"
-    APP_USER ||--|| CLIENT : "asociat cu"
+    DOCTOR }o--o{ SPECIALTY : are
+    APP_USER ||--|| CLIENT : asociat_cu
 ```
 
-### Entități Principale:
+## Functionalitati principale
 
-1. **Client**: Proprietarul animalelor.
-2. **Animal**: Pacientul clinicii.
-3. **Appointment**: Programări între un animal și un medic.
-4. **Doctor**: Personalul medical.
-5. **MedicalRecord**: Fișa medicală unică a fiecărui animal.
-6. **Treatment**: Tratamente individuale aplicate în cadrul fișei medicale.
-7. **Specialty**: Specializările medicilor (ex: Chirurgie, Cardiologie).
-8. **AppUser**: Gestionarea autentificării și rolurilor (`ADMIN`, `EMPLOYEE`, `USER`).
+- CRUD pentru entitatile principale de business
+- cautare, paginare si sortare in liste
+- autentificare cu utilizatori din baza de date
+- roluri `ADMIN`, `EMPLOYEE`, `USER`
+- pagina de login custom
+- pagini de eroare custom
+- logging in fisiere separate
 
-## 🚀 Setup și Rulare
+## Rulare
 
-### Pre-cerințe
+### Cerinte
 
-- Java 17+
-- Maven
-- Docker (pentru PostgreSQL)
+- Java 21+
+- Docker
 
-### Pași pentru rulare:
+### 1. Pornire baza de date
 
-1. **Pornirea bazei de date (PostgreSQL):**
-   ```bash
-   docker-compose up -d
-   ```
-2. **Rularea aplicației:**
-   ```bash
-   mvn spring-boot:run
-   ```
-   *Notă: Profilul `dev` este activat implicit.*
+```bash
+docker-compose up -d
+```
 
-3. **Accesare în browser:**
-    - Aplicație: [http://localhost:8080](http://localhost:8080)
-    - Swagger UI: [http://localhost:8080/swagger](http://localhost:8080/swagger)
+### 2. Rulare aplicatie
 
-## 🔐 Securitate și Roluri
+Pe Windows:
 
-- **ADMIN**: Acces complet, inclusiv ștergerea entităților critice.
-- **EMPLOYEE**: Gestionarea clienților, animalelor, programărilor și fișelor medicale.
-- **USER (Client)**: Poate vedea propriile animale, programări și istoricul medical al acestora.
+```bash
+.\mvnw.cmd spring-boot:run
+```
 
-## 📝 Logging
+Pe Linux / macOS:
 
-Logurile sunt configurate să fie salvate în directorul `/logs`:
+```bash
+./mvnw spring-boot:run
+```
 
-- `vet-clinic.log`: Toate evenimentele de tip INFO/DEBUG.
-- `vet-clinic-error.log`: Doar erorile critice pentru o monitorizare rapidă.
+Aplicatia porneste implicit cu profilul `dev`.
 
----
-*Proiect realizat pentru cursul AWBD - 2026*
+## Profiluri
+
+- `dev` -> PostgreSQL
+- `test` -> H2 in-memory
+
+## Acces
+
+- aplicatie: `http://localhost:8080`
+- Swagger UI: `http://localhost:8080/swagger`
+
+## Securitate
+
+- `ADMIN` are acces complet
+- `EMPLOYEE` poate gestiona majoritatea entitatilor de business
+- `USER` are acces limitat la datele proprii
+
+Aplicatia foloseste:
+- autentificare cu Spring Security
+- parole codate cu BCrypt
+- remember-me
+- protectie CSRF
+
+## Logging
+
+Logurile sunt salvate in directorul `logs`:
+
+- `vet-clinic.log`
+- `vet-clinic-error.log`
+
+## Observatii
+
+- Profilul `dev` este activ implicit in `application.yml`.
+- Configurarea pentru testare este separata in `application-test.yml`.

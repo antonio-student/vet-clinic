@@ -27,12 +27,14 @@ public class ClientController {
     public String listClients(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "") String name,
                               @RequestParam(defaultValue = "") String email,
+                              @RequestParam(defaultValue = "name") String sort,
+                              @RequestParam(defaultValue = "asc") String dir,
                               Model model) {
-        log.info("Request to show clients page: {}, name: {}, email: {}", page, name, email);
-        Page<Client> clientPage = clientService.searchClients(name, email, PageRequest.of(page, 5, Sort.by("name").ascending()));
+        log.info("Request to show clients page: {}, name: {}, email: {}, sort: {}, dir: {}", page, name, email, sort, dir);
+        Page<Client> clientPage = clientService.searchClients(name, email, PageRequest.of(page, 5, buildSort(sort, dir)));
 
         model.addAttribute("clientPage", clientPage);
-        addListAttributes(model, page, name, email);
+        addListAttributes(model, page, name, email, sort, dir);
         return "clients/list";
     }
 
@@ -82,10 +84,22 @@ public class ClientController {
         return "clients/form";
     }
 
-    private void addListAttributes(Model model, int page, String name, String email) {
+    private void addListAttributes(Model model, int page, String name, String email, String sort, String dir) {
         model.addAttribute("currentPage", page);
         model.addAttribute("nameFilter", name);
         model.addAttribute("emailFilter", email);
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("currentDir", dir);
+    }
+
+    private Sort buildSort(String sort, String dir) {
+        String property = switch (sort) {
+            case "email" -> "email";
+            case "phone" -> "phone";
+            default -> "name";
+        };
+        Sort.Direction direction = "desc".equalsIgnoreCase(dir) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return Sort.by(direction, property).and(Sort.by(Sort.Direction.ASC, "name"));
     }
 }
 

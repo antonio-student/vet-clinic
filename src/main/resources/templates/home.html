@@ -15,8 +15,8 @@
 
         <div class="ribbon-links">
             <a class="ribbon-link active" th:href="@{/}">Dashboard</a>
-            <a class="ribbon-link" th:href="@{/animals}" th:if="${!isUser or isEmployee or isAdmin}">Animals</a>
-            <a class="ribbon-link" th:href="@{/appointments}" th:if="${!isUser or isEmployee or isAdmin}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
@@ -34,14 +34,20 @@
     <section class="hero">
         <div class="hero-copy hero-home">
             <div class="eyebrow">Daily Dashboard</div>
-            <h1 class="page-title">Clinic command center</h1>
+            <h1 class="page-title" th:text="${userPortal ? 'Client portal' : 'Clinic command center'}">Clinic command center</h1>
             <p class="page-subtitle">
-                Welcome back, <strong th:text="${username}">admin</strong>. Keep registrations, visits, doctors, and medical records in view from one clean starting point.
+                <span th:if="${!userPortal}">
+                    Welcome back, <strong th:text="${username}">admin</strong>. Keep registrations, visits, doctors, and medical records in view from one clean starting point.
+                </span>
+                <span th:if="${userPortal}">
+                    Welcome back, <strong th:text="${username}">user</strong>. From here you can review your patients, your appointments, and the available doctors.
+                </span>
             </p>
             <div class="hero-actions hero-actions-home">
-                <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
-                <a class="btn btn-secondary" th:href="@{/animals/new}">Add Patient</a>
-                <a class="btn btn-ghost" th:href="@{/doctors}" th:if="${isUser and !isEmployee and !isAdmin}">View Doctors</a>
+                <a class="btn btn-primary" th:href="@{/appointments/new}" th:text="${userPortal ? 'Book My Appointment' : 'Book Appointment'}">Book Appointment</a>
+                <a class="btn btn-secondary" th:href="@{/animals}" th:if="${userPortal}">My Patients</a>
+                <a class="btn btn-secondary" th:href="@{/animals/new}" th:if="${!userPortal}">Add Patient</a>
+                <a class="btn btn-ghost" th:href="@{/doctors}">View Doctors</a>
                 <a class="btn btn-ghost" sec:authorize="hasRole('EMPLOYEE') or hasRole('ADMIN')" th:href="@{/doctors/new}">Add Doctor</a>
             </div>
         </div>
@@ -51,18 +57,18 @@
         <div class="panel">
             <div class="panel-header">
                 <div>
-                    <h2 class="section-title">Core metrics</h2>
-                    <p class="section-copy">A quick count of the main data sets currently managed inside the clinic workspace.</p>
+                    <h2 class="section-title" th:text="${userPortal ? 'Your overview' : 'Core metrics'}">Core metrics</h2>
+                    <p class="section-copy" th:text="${userPortal ? 'A quick summary of the areas you can access as a client.' : 'A quick count of the main data sets currently managed inside the clinic workspace.'}">A quick count of the main data sets currently managed inside the clinic workspace.</p>
                 </div>
             </div>
 
             <div class="metric-grid">
                 <article class="metric-card">
-                    <div class="metric-kicker">Animals</div>
-                    <div class="metric-value" th:text="${animalCount}">0</div>
-                    <p class="metric-copy">Registered patients in the clinic directory.</p>
+                    <div class="metric-kicker" th:text="${userPortal ? 'My animals' : 'Animals'}">Animals</div>
+                    <div class="metric-value" th:text="${userPortal ? visibleAnimalCount : animalCount}">0</div>
+                    <p class="metric-copy" th:text="${userPortal ? 'Patients linked to your account.' : 'Registered patients in the clinic directory.'}">Registered patients in the clinic directory.</p>
                 </article>
-                <article class="metric-card">
+                <article class="metric-card" th:if="${!userPortal}">
                     <div class="metric-kicker">Clients</div>
                     <div class="metric-value" th:text="${clientCount}">0</div>
                     <p class="metric-copy">Owners currently stored in the system.</p>
@@ -70,19 +76,19 @@
                 <article class="metric-card">
                     <div class="metric-kicker">Doctors</div>
                     <div class="metric-value" th:text="${doctorCount}">0</div>
-                    <p class="metric-copy">Medical staff available for scheduling.</p>
+                    <p class="metric-copy" th:text="${userPortal ? 'Available doctors you can book with.' : 'Medical staff available for scheduling.'}">Medical staff available for scheduling.</p>
                 </article>
                 <article class="metric-card">
-                    <div class="metric-kicker">Appointments</div>
-                    <div class="metric-value" th:text="${appointmentCount}">0</div>
-                    <p class="metric-copy">Visits booked across consultation flows.</p>
+                    <div class="metric-kicker" th:text="${userPortal ? 'My appointments' : 'Appointments'}">Appointments</div>
+                    <div class="metric-value" th:text="${userPortal ? visibleAppointmentCount : appointmentCount}">0</div>
+                    <p class="metric-copy" th:text="${userPortal ? 'Appointments visible in your account.' : 'Visits booked across consultation flows.'}">Visits booked across consultation flows.</p>
                 </article>
-                <article class="metric-card">
+                <article class="metric-card" th:if="${!userPortal}">
                     <div class="metric-kicker">Records</div>
                     <div class="metric-value" th:text="${medicalRecordCount}">0</div>
                     <p class="metric-copy">Medical record files currently maintained.</p>
                 </article>
-                <article class="metric-card">
+                <article class="metric-card" th:if="${!userPortal}">
                     <div class="metric-kicker">Treatments</div>
                     <div class="metric-value" th:text="${treatmentCount}">0</div>
                     <p class="metric-copy">Documented treatments attached to records.</p>
@@ -94,18 +100,18 @@
             <div class="panel-header">
                 <div>
                     <h2 class="section-title">Quick access</h2>
-                    <p class="section-copy">Shortcut into the admin areas your staff will open most often.</p>
+                    <p class="section-copy" th:text="${userPortal ? 'Shortcuts to the pages a client will use most often.' : 'Shortcut into the admin areas your staff will open most often.'}">Shortcut into the admin areas your staff will open most often.</p>
                 </div>
             </div>
 
             <div class="stack-links">
                 <a class="stack-link" th:href="@{/animals}">
-                    <span>Patient directory</span>
-                    <span th:text="${animalCount}">0</span>
+                    <span th:text="${userPortal ? 'My patients' : 'Patient directory'}">Patient directory</span>
+                    <span th:text="${userPortal ? visibleAnimalCount : animalCount}">0</span>
                 </a>
                 <a class="stack-link" th:href="@{/appointments}">
-                    <span>Appointment board</span>
-                    <span th:text="${appointmentCount}">0</span>
+                    <span th:text="${userPortal ? 'My appointments' : 'Appointment board'}">Appointment board</span>
+                    <span th:text="${userPortal ? visibleAppointmentCount : appointmentCount}">0</span>
                 </a>
                 <a class="stack-link" th:href="@{/doctors}">
                     <span>Doctor roster</span>

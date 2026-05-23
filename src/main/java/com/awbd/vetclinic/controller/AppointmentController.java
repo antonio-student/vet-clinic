@@ -49,12 +49,12 @@ public class AppointmentController {
                                    Model model,
                                    Authentication authentication) {
         log.info("Request to show appointments page: {}, animalId: {}, appointmentDate: {}", page, animalId, appointmentDate);
-        String ownerUsername = accessControlService.isUser(authentication) ? authentication.getName() : null;
         Page<Appointment> appointmentPage = appointmentService.searchAppointments(
                 animalId,
                 appointmentDate,
                 PageRequest.of(page, 5, Sort.by(Sort.Direction.DESC, "appointmentDate"))
         );
+        appointmentPage = accessControlService.filterAppointments(appointmentPage, authentication);
 
         model.addAttribute("appointmentPage", appointmentPage);
         model.addAttribute("currentPage", page);
@@ -153,4 +153,3 @@ public class AppointmentController {
         return "appointments/form";
     }
 }
-

@@ -19,6 +19,12 @@
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
+        <div class="ribbon-actions">
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
+        </div>
     </div>
 </nav>
 
@@ -57,8 +63,8 @@
 
             <div class="empty-state" th:if="${!hasMedicalRecord}">
                 <h3 class="empty-title">No medical record yet</h3>
-                <p class="empty-copy">Create the chart once, then treatments can be added directly from this patient page.</p>
-                <form class="inline-form" method="post" th:action="@{/animals/{id}/medical-record(id=${animal.id})}">
+                <p class="empty-copy" th:text="${isEmployee or isAdmin ? 'Create the chart once, then treatments can be added directly from this patient page.' : 'A medical record will appear here once it is created by the clinic staff.'}">Create the chart once, then treatments can be added directly from this patient page.</p>
+                <form class="inline-form" method="post" th:action="@{/animals/{id}/medical-record(id=${animal.id})}" th:if="${isEmployee or isAdmin}">
                     <button class="btn btn-primary" type="submit">Create Medical Record</button>
                 </form>
             </div>
@@ -80,7 +86,7 @@
                     <span class="detail-value" th:text="${medicalRecord != null and !#strings.isEmpty(medicalRecord.generalNotes) ? medicalRecord.generalNotes : 'No general notes added yet.'}">Notes</span>
                 </div>
 
-                <details class="accordion-card panel-section" th:open="${#fields.hasErrors('description') or #fields.hasErrors('treatmentDate') or #fields.hasErrors('cost')}">
+                <details class="accordion-card panel-section" th:if="${isEmployee or isAdmin}" th:open="${#fields.hasErrors('description') or #fields.hasErrors('treatmentDate') or #fields.hasErrors('cost')}">
                     <summary class="accordion-summary">
                         <span>
                             <strong>Quick add treatment</strong>

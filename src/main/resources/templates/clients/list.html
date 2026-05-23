@@ -17,6 +17,12 @@
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link active" th:href="@{/clients}">Clients</a>
         </div>
+        <div class="ribbon-actions">
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
+        </div>
     </div>
 </nav>
 <main class="page-shell">
@@ -38,6 +44,21 @@
             <div class="toolbar-group">
                 <label class="toolbar-label" for="clientEmail">Email contains</label>
                 <input class="toolbar-input" id="clientEmail" name="email" placeholder="Search email" th:value="${emailFilter}" type="text">
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="clientSort">Sort by</label>
+                <select class="toolbar-select" id="clientSort" name="sort">
+                    <option th:selected="${currentSort == 'name'}" value="name">Name</option>
+                    <option th:selected="${currentSort == 'email'}" value="email">Email</option>
+                    <option th:selected="${currentSort == 'phone'}" value="phone">Phone</option>
+                </select>
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="clientDir">Direction</label>
+                <select class="toolbar-select" id="clientDir" name="dir">
+                    <option th:selected="${currentDir == 'asc'}" value="asc">Ascending</option>
+                    <option th:selected="${currentDir == 'desc'}" value="desc">Descending</option>
+                </select>
             </div>
             <button class="btn btn-secondary toolbar-btn" type="submit">Apply</button>
         </form>
@@ -69,7 +90,7 @@
         </div>
         <div class="panel-footer">
             <div class="pagination" th:if="${clientPage.totalPages > 1}">
-                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, clientPage.totalPages - 1)}" th:href="@{/clients(page=${i}, name=${nameFilter}, email=${emailFilter})}" th:text="${i + 1}">1</a>
+                <a class="page-chip" th:classappend="${currentPage == i} ? ' active' : ''" th:each="i : ${#numbers.sequence(0, clientPage.totalPages - 1)}" th:href="@{/clients(page=${i}, name=${nameFilter}, email=${emailFilter}, sort=${currentSort}, dir=${currentDir})}" th:text="${i + 1}">1</a>
             </div>
             <div class="panel-footnote">Total registered: <span th:text="${clientPage.totalElements}">0</span></div>
         </div>

@@ -20,6 +20,12 @@
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
+        <div class="ribbon-actions">
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
+        </div>
     </div>
 </nav>
 
@@ -45,6 +51,21 @@
             <div class="toolbar-group">
                 <label class="toolbar-label" for="animalSpecies">Species contains</label>
                 <input class="toolbar-input" id="animalSpecies" name="species" placeholder="Search species" th:value="${speciesFilter}" type="text">
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="animalSort">Sort by</label>
+                <select class="toolbar-select" id="animalSort" name="sort">
+                    <option th:selected="${currentSort == 'name'}" value="name">Name</option>
+                    <option th:selected="${currentSort == 'species'}" value="species">Species</option>
+                    <option th:selected="${currentSort == 'age'}" value="age">Age</option>
+                </select>
+            </div>
+            <div class="toolbar-group">
+                <label class="toolbar-label" for="animalDir">Direction</label>
+                <select class="toolbar-select" id="animalDir" name="dir">
+                    <option th:selected="${currentDir == 'asc'}" value="asc">Ascending</option>
+                    <option th:selected="${currentDir == 'desc'}" value="desc">Descending</option>
+                </select>
             </div>
             <button class="btn btn-secondary toolbar-btn" type="submit">Apply</button>
         </form>
@@ -100,7 +121,7 @@
                 <a class="page-chip"
                    th:classappend="${currentPage == i} ? ' active' : ''"
                    th:each="i : ${#numbers.sequence(0, animalPage.totalPages - 1)}"
-                   th:href="@{/animals(page=${i}, name=${nameFilter}, species=${speciesFilter})}"
+                   th:href="@{/animals(page=${i}, name=${nameFilter}, species=${speciesFilter}, sort=${currentSort}, dir=${currentDir})}"
                    th:text="${i + 1}">
                     1
                 </a>
