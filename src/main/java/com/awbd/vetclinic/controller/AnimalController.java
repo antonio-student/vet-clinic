@@ -46,20 +46,24 @@ public class AnimalController {
     public String listAnimals(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "") String name,
                               @RequestParam(defaultValue = "") String species,
+                              @RequestParam(defaultValue = "name") String sort,
+                              @RequestParam(defaultValue = "asc") String dir,
                               Model model,
                               Authentication authentication) {
-        log.info("Request to show animals page: {}, name: {}, species: {}", page, name, species);
-        String ownerUsername = accessControlService.isUser(authentication) ? authentication.getName() : null;
+        log.info("Request to show animals page: {}, name: {}, species: {}, sort: {}, dir: {}", page, name, species, sort, dir);
         Page<Animal> animalPage = animalService.searchAnimals(
                 name,
                 species,
-                PageRequest.of(page, 7, Sort.by("name").ascending())
+                PageRequest.of(page, 7, buildSort(sort, dir))
         );
+        animalPage = accessControlService.filterAnimals(animalPage, authentication);
 
         model.addAttribute("animalPage", animalPage);
         model.addAttribute("currentPage", page);
         model.addAttribute("nameFilter", name);
         model.addAttribute("speciesFilter", species);
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("currentDir", dir);
         return "animals/list"; // This matches the Thymeleaf template path
     }
 
@@ -192,5 +196,15 @@ public class AnimalController {
         model.addAttribute("appointments", appointmentService.getAppointmentsForAnimal(animal.getId()));
         model.addAttribute("quickTreatment", quickTreatment);
         model.addAttribute("hasMedicalRecord", medicalRecordOptional.isPresent());
+    }
+
+    private Sort buildSort(String sort, String dir) {
+        String property = switch (sort) {
+            case "species" -> "species";
+            case "age" -> "age";
+            default -> "name";
+        };
+        Sort.Direction direction = "desc".equalsIgnoreCase(dir) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return Sort.by(direction, property).and(Sort.by(Sort.Direction.ASC, "name"));
     }
 }

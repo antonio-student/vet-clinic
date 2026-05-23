@@ -21,8 +21,12 @@
             <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
 
-        <div class="ribbon-actions" th:if="${isEmployee or isAdmin}">
-            <a class="btn btn-primary" th:href="@{/appointments/new}">Book Appointment</a>
+        <div class="ribbon-actions">
+            <a class="btn btn-primary" th:href="@{/appointments/new}" th:if="${isEmployee or isAdmin}">Book Appointment</a>
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
         </div>
     </div>
 </nav>
@@ -47,13 +51,13 @@
             <div class="field-stack">
                 <div class="field">
                     <label for="name">Patient name</label>
-                    <input id="name" placeholder="Ex: Luna" th:field="*{name}" type="text"/>
+                    <input id="name" minlength="2" placeholder="Ex: Luna" required th:field="*{name}" type="text"/>
                     <span class="error-text" th:errors="*{name}" th:if="${#fields.hasErrors('name')}"></span>
                 </div>
 
                 <div class="field">
                     <label for="species">Species</label>
-                    <input id="species" placeholder="Ex: Cat, Dog, Rabbit" th:field="*{species}" type="text"/>
+                    <input id="species" minlength="2" placeholder="Ex: Cat, Dog, Rabbit" required th:field="*{species}" type="text"/>
                     <span class="error-text" th:errors="*{species}" th:if="${#fields.hasErrors('species')}"></span>
                 </div>
 
@@ -66,10 +70,10 @@
 
                 <div class="field">
                     <label for="client">Owner</label>
-                    <select id="client" th:field="*{client.id}">
+                    <select id="client" required th:field="*{client.id}">
                         <option value="">Select a client</option>
                         <option th:each="clientOption : ${clients}"
-                                th:if="${isEmployee or isAdmin or (clientOption.email != null and clientOption.email.equalsIgnoreCase(#authentication.name))}"
+                                th:if="${isEmployee or isAdmin or (clientOption.email != null and (clientOption.email.equalsIgnoreCase(#authentication.name) or #strings.toLowerCase(#strings.substringBefore(clientOption.email, '@')) == #strings.toLowerCase(#authentication.name)))}"
                                 th:text="${clientOption.email != null and !#strings.isEmpty(clientOption.email)} ? |${clientOption.name} - ${clientOption.email}| : ${clientOption.name}"
                                 th:value="${clientOption.id}">
                             Client Name

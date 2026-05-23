@@ -17,6 +17,12 @@
             <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
             <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
         </div>
+        <div class="ribbon-actions">
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
+        </div>
     </div>
 </nav>
 <main class="page-shell">
@@ -32,7 +38,7 @@
                     <label for="animal">Patient</label>
                     <select id="animal" name="animal.id">
                         <option value="">Select a patient</option>
-                        <option th:each="animalOption : ${animals}" th:if="${!isUser or animalOption.client == null or animalOption.client.email == null or animalOption.client.email.equalsIgnoreCase(#authentication.name)}" th:selected="${selectedAnimalId != null and selectedAnimalId == animalOption.id}" th:text="${animalOption.name + ' - ' + animalOption.species}" th:value="${animalOption.id}">Patient</option>
+                        <option th:each="animalOption : ${animals}" th:if="${!isUser or animalOption.client == null or animalOption.client.email == null or animalOption.client.email.equalsIgnoreCase(#authentication.name) or #strings.toLowerCase(#strings.substringBefore(animalOption.client.email, '@')) == #strings.toLowerCase(#authentication.name)}" th:selected="${selectedAnimalId != null and selectedAnimalId == animalOption.id}" th:text="${animalOption.name + ' - ' + animalOption.species}" th:value="${animalOption.id}">Patient</option>
                     </select>
                     <span class="error-text" th:errors="*{animal}" th:if="${#fields.hasErrors('animal')}"></span>
                 </div>

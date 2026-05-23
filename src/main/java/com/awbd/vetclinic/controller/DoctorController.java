@@ -37,12 +37,14 @@ public class DoctorController {
     public String listDoctors(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "") String name,
                               @RequestParam(defaultValue = "") String email,
+                              @RequestParam(defaultValue = "lastName") String sort,
+                              @RequestParam(defaultValue = "asc") String dir,
                               Model model) {
-        log.info("Request to show doctors page: {}, name: {}, email: {}", page, name, email);
-        Page<Doctor> doctorPage = doctorService.searchDoctors(name, email, PageRequest.of(page, 5, Sort.by("lastName", "firstName").ascending()));
+        log.info("Request to show doctors page: {}, name: {}, email: {}, sort: {}, dir: {}", page, name, email, sort, dir);
+        Page<Doctor> doctorPage = doctorService.searchDoctors(name, email, PageRequest.of(page, 5, buildSort(sort, dir)));
 
         model.addAttribute("doctorPage", doctorPage);
-        addListAttributes(model, page, name, email);
+        addListAttributes(model, page, name, email, sort, dir);
         return "doctors/list";
     }
 
@@ -108,10 +110,25 @@ public class DoctorController {
         return "doctors/form";
     }
 
-    private void addListAttributes(Model model, int page, String name, String email) {
+    private void addListAttributes(Model model, int page, String name, String email, String sort, String dir) {
         model.addAttribute("currentPage", page);
         model.addAttribute("nameFilter", name);
         model.addAttribute("emailFilter", email);
+        model.addAttribute("currentSort", sort);
+        model.addAttribute("currentDir", dir);
+    }
+
+    private Sort buildSort(String sort, String dir) {
+        String property = switch (sort) {
+            case "firstName" -> "firstName";
+            case "email" -> "email";
+            default -> "lastName";
+        };
+        Sort.Direction direction = "desc".equalsIgnoreCase(dir) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort baseSort = "lastName".equals(property)
+                ? Sort.by(direction, "lastName").and(Sort.by(direction, "firstName"))
+                : Sort.by(direction, property);
+        return baseSort.and(Sort.by(Sort.Direction.ASC, "lastName")).and(Sort.by(Sort.Direction.ASC, "firstName"));
     }
 
     private List<com.awbd.vetclinic.model.Specialty> resolveSpecialties(List<Long> specialtyIds, String newSpecialties) {
@@ -138,4 +155,3 @@ public class DoctorController {
         return new ArrayList<>(specialties.values());
     }
 }
-

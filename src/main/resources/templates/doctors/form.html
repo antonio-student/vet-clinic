@@ -15,7 +15,13 @@
             <a class="ribbon-link" th:href="@{/animals}">Animals</a>
             <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
             <a class="ribbon-link active" th:href="@{/doctors}">Doctors</a>
-            <a class="ribbon-link" th:href="@{/clients}">Clients</a>
+            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
+        </div>
+        <div class="ribbon-actions">
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
         </div>
     </div>
 </nav>
@@ -30,17 +36,17 @@
             <div class="field-stack">
                 <div class="field">
                     <label for="firstName">First name</label>
-                    <input id="firstName" placeholder="Ex: Andrei" th:field="*{firstName}" type="text">
+                    <input id="firstName" minlength="2" placeholder="Ex: Andrei" required th:field="*{firstName}" type="text">
                     <span class="error-text" th:errors="*{firstName}" th:if="${#fields.hasErrors('firstName')}"></span>
                 </div>
                 <div class="field">
                     <label for="lastName">Last name</label>
-                    <input id="lastName" placeholder="Ex: Ionescu" th:field="*{lastName}" type="text">
+                    <input id="lastName" minlength="2" placeholder="Ex: Ionescu" required th:field="*{lastName}" type="text">
                     <span class="error-text" th:errors="*{lastName}" th:if="${#fields.hasErrors('lastName')}"></span>
                 </div>
                 <div class="field">
                     <label for="email">Email</label>
-                    <input id="email" placeholder="doctor@buddycare.ro" th:field="*{email}" type="email">
+                    <input id="email" placeholder="doctor@buddycare.ro" required th:field="*{email}" type="email">
                     <span class="error-text" th:errors="*{email}" th:if="${#fields.hasErrors('email')}"></span>
                 </div>
                 <div class="field">
