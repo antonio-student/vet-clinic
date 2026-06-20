@@ -81,7 +81,8 @@ public class OwnerAccessFilter extends OncePerRequestFilter {
     private boolean canCreateAnimal(HttpServletRequest request, Authentication authentication) {
         String clientIdRaw = request.getParameter("client.id");
         if (clientIdRaw == null || clientIdRaw.isBlank()) {
-            return false;
+            String email = request.getParameter("client.email");
+            return email != null && !email.isBlank() && accessControlService.matchesUsername(email, authentication.getName());
         }
 
         Long clientId = Long.parseLong(clientIdRaw);

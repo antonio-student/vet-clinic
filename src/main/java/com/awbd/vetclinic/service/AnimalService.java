@@ -32,10 +32,15 @@ public class AnimalService extends BaseService<Animal> {
     }
 
     public Page<Animal> searchAnimals(String name, String species, Pageable pageable) {
-        log.info("Searching animals with filters name={}, species={}", name, species);
+        return searchAnimals(name, species, null, pageable);
+    }
+
+    public Page<Animal> searchAnimals(String name, String species, String ownerUsername, Pageable pageable) {
+        log.info("Searching animals with filters name={}, species={}, ownerUsername={}", name, species, ownerUsername);
         List<Specification<Animal>> specifications = new ArrayList<>();
         addIfPresent(specifications, containsIgnoreCase("name", name));
         addIfPresent(specifications, containsIgnoreCase("species", species));
+        addIfPresent(specifications, ownedByUsername(ownerUsername));
         Specification<Animal> specification = specifications.stream()
                 .reduce(Specification::and)
                 .orElse(null);

@@ -46,12 +46,11 @@
                     <span class="error-text" th:errors="*{age}" th:if="${#fields.hasErrors('age')}"></span>
                 </div>
 
-                <div class="field">
+                <div class="field" th:if="${isEmployee or isAdmin}">
                     <label for="client">Owner</label>
                     <select id="client" required th:field="*{client.id}">
                         <option value="">Select a client</option>
                         <option th:each="clientOption : ${clients}"
-                                th:if="${isEmployee or isAdmin or (clientOption.email != null and (clientOption.email.equalsIgnoreCase(#authentication.name) or #strings.toLowerCase(#strings.substringBefore(clientOption.email, '@')) == #strings.toLowerCase(#authentication.name)))}"
                                 th:text="${clientOption.email != null and !#strings.isEmpty(clientOption.email)} ? |${clientOption.name} - ${clientOption.email}| : ${clientOption.name}"
                                 th:value="${clientOption.id}">
                             Client Name
@@ -59,10 +58,42 @@
                     </select>
                     <span class="error-text" th:errors="*{client}" th:if="${#fields.hasErrors('client')}"></span>
                 </div>
+
+                <div class="field" th:if="${!(isEmployee or isAdmin)}">
+                    <div th:if="${matchedClient != null}">
+                        <label>Owner</label>
+                        <input type="hidden" name="client.id" th:value="${matchedClient.id}" />
+                        <span class="name-main" style="display: block; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 6px; font-weight: 500;"
+                              th:text="${matchedClient.name} + ' (' + ${matchedClient.email} + ')'">Owner Name (email)</span>
+                    </div>
+                    <div th:if="${matchedClient == null}">
+                        <label style="color: #6366f1;">Register Owner Profile</label>
+                        <p class="helper-text" style="margin-bottom: 12px;">You need to create your owner profile first. Fill in your details below:</p>
+                        <div class="field-stack" style="background: rgba(99, 102, 241, 0.05); padding: 16px; border-radius: 8px; border: 1px solid rgba(99, 102, 241, 0.15);">
+                            <div class="field">
+                                <label for="clientName">Your Full Name</label>
+                                <input id="clientName" placeholder="Ex: John Doe" th:field="*{client.name}" type="text" />
+                                <span class="error-text" th:errors="*{client.name}" th:if="${#fields.hasErrors('client.name')}"></span>
+                            </div>
+                            <div class="field" style="margin-top: 12px;">
+                                <label for="clientPhone">Phone Number</label>
+                                <input id="clientPhone" placeholder="Ex: +40722123456" th:field="*{client.phone}" type="text" />
+                                <span class="error-text" th:errors="*{client.phone}" th:if="${#fields.hasErrors('client.phone')}"></span>
+                            </div>
+                            <div class="field" style="margin-top: 12px;">
+                                <label for="clientEmail">Email Address</label>
+                                <input id="clientEmail" placeholder="user@example.com" th:field="*{client.email}" type="email" />
+                                <span class="error-text" th:errors="*{client.email}" th:if="${#fields.hasErrors('client.email')}"></span>
+                                <span class="helper-text">Must match your account username (<strong th:text="${#authentication.name}">user</strong>).</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="form-actions" style="margin-top: 28px;">
-                <button class="btn btn-primary" th:text="${animal.id == null ? 'Save Patient' : 'Update Patient'}"
+                <button class="btn btn-primary"
+                        th:text="${animal.id == null ? 'Save Patient' : 'Update Patient'}"
                         type="submit">Save Patient
                 </button>
                 <a class="btn btn-ghost" th:href="@{/animals/{id}(id=${animal.id})}" th:if="${animal.id != null}">View Patient Chart</a>
