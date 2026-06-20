@@ -70,6 +70,7 @@ public class AppointmentController {
         Appointment appointment = new Appointment();
         appointment.setDoctor(new Doctor());
         appointment.setAnimal(new Animal());
+        appointment.setStatus("SCHEDULED");
         return showForm(model, appointment);
     }
 
