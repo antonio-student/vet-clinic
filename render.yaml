@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: vet-clinic
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: render
+      - key: DB_HOST
+        fromDatabase:
+          name: vet-clinic-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: vet-clinic-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: vet-clinic-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: vet-clinic-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: vet-clinic-db
+          property: password
+      - key: JDBC_DATABASE_URL
+        value: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+
+databases:
+  - name: vet-clinic-db
+    databaseName: vetclinic
+    user: vetuser
+    plan: free
