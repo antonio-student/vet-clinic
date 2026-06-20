@@ -7,18 +7,7 @@
     <link rel="stylesheet" th:href="@{/animals-ui.css}">
 </head>
 <body>
-<nav class="site-ribbon">
-    <div class="site-ribbon-inner">
-        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
-        <div class="ribbon-links">
-            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
-            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
-            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
-        </div>
-    </div>
-</nav>
+<nav th:replace="~{fragments/layout :: header('treatments')}"></nav>
 <main class="page-shell">
     <section class="form-card">
         <div class="form-header">
@@ -59,14 +48,6 @@
         </form>
     </section>
 </main>
-<footer class="footer-ribbon">
-    <div class="footer-inner">
-        <div class="footer-copy">
-            <span class="footer-title">About Buddy Care</span>
-            <span class="footer-text">Buddy Care is a placeholder veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
-        </div>
-        <div class="footer-text">Treatment forms now support record linking.</div>
-    </div>
-</footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

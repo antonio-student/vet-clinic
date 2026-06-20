@@ -7,26 +7,7 @@
     <link rel="stylesheet" th:href="@{/animals-ui.css}">
 </head>
 <body>
-<nav class="site-ribbon">
-    <div class="site-ribbon-inner">
-        <a th:href="@{/}">
-            <img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}">
-        </a>
-        <div class="ribbon-links">
-            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
-            <a class="ribbon-link active" th:href="@{/animals}">Animals</a>
-            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
-            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
-            <a class="ribbon-link" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
-        </div>
-        <div class="ribbon-actions">
-            <form class="logout-form" method="post" th:action="@{/logout}">
-                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
-                <button class="ribbon-link logout-link" type="submit">Log Out</button>
-            </form>
-        </div>
-    </div>
-</nav>
+<nav th:replace="~{fragments/layout :: header('animals')}"></nav>
 
 <main class="page-shell">
     <section class="hero hero-compact">
@@ -176,14 +157,6 @@
     </section>
 </main>
 
-<footer class="footer-ribbon">
-    <div class="footer-inner">
-        <div class="footer-copy">
-            <span class="footer-title">About Buddy Care</span>
-            <span class="footer-text">Buddy Care now treats the patient chart as the central place for medical history and treatment activity.</span>
-        </div>
-        <div class="footer-text">Clinical workflow is centered on the animal profile.</div>
-    </div>
-</footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>
