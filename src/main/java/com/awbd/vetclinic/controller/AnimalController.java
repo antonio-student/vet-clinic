@@ -221,6 +221,11 @@ public class AnimalController {
             matchedClient = clientService.getAllClients(Pageable.unpaged()).getContent().stream()
                     .filter(c -> c.getEmail() != null && accessControlService.matchesUsername(c.getEmail(), authentication.getName()))
                     .findFirst().orElse(null);
+            
+            if (matchedClient == null && animal.getId() == null && animal.getClient() != null 
+                    && (animal.getClient().getEmail() == null || animal.getClient().getEmail().isBlank())) {
+                animal.getClient().setEmail(authentication.getName() + "@vetclinic.com");
+            }
         }
         model.addAttribute("matchedClient", matchedClient);
         
