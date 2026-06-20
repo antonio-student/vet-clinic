@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${JDBC_DATABASE_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  docker:
+    compose:
+      lifecycle-management: none

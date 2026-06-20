@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>404 - Not Found</title>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" th:href="@{/animals-ui.css}">
+</head>
+<body>
+<nav class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}"><img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}"></a>
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:href="@{/doctors}">Doctors</a>
+        </div>
+    </div>
+</nav>
+<main class="page-shell">
+    <section class="form-card">
+        <div class="form-header">
+            <div><h1 class="page-title page-title-small" th:text="${errorTitle ?: 'Page not found'}">Page not found</h1></div>
+        </div>
+        <p class="form-intro" th:text="${errorMessage ?: 'The requested resource does not exist or is no longer available.'}">
+            The requested resource does not exist or is no longer available.
+        </p>
+        <div class="field-stack">
+            <div class="field">
+                <label>Requested path</label>
+                <div class="helper-text" th:text="${requestPath ?: 'Unknown path'}">/missing-page</div>
+            </div>
+        </div>
+        <div class="form-actions" style="margin-top: 28px;">
+            <a class="btn btn-primary" th:href="@{/}">Back to Dashboard</a>
+            <a class="btn btn-secondary" th:href="@{/animals}">Open Patients</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>
