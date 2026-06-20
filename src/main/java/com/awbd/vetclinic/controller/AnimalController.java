@@ -51,12 +51,18 @@ public class AnimalController {
                               Model model,
                               Authentication authentication) {
         log.info("Request to show animals page: {}, name: {}, species: {}, sort: {}, dir: {}", page, name, species, sort, dir);
+        
+        String ownerUsername = null;
+        if (authentication != null && !accessControlService.isEmployee(authentication) && !accessControlService.isAdmin(authentication)) {
+            ownerUsername = authentication.getName();
+        }
+
         Page<Animal> animalPage = animalService.searchAnimals(
                 name,
                 species,
+                ownerUsername,
                 PageRequest.of(page, 7, buildSort(sort, dir))
         );
-        animalPage = accessControlService.filterAnimals(animalPage, authentication);
 
         model.addAttribute("animalPage", animalPage);
         model.addAttribute("currentPage", page);
@@ -68,27 +74,53 @@ public class AnimalController {
     }
 
     @GetMapping("/new")
-    public String showCreateForm(Model model) {
+    public String showCreateForm(Model model, Authentication authentication) {
         Animal animal = new Animal();
         animal.setClient(new Client());
-        return showForm(model, animal, false);
+        return showForm(model, animal, false, authentication);
     }
 
     @PostMapping("/create")
-    public String create(@Valid @ModelAttribute("animal") Animal animal, BindingResult bindingResult, Model model) {
-        if (animal.getClient() == null || animal.getClient().getId() == null) {
-            bindingResult.rejectValue("client", "animal.client", "Owner is required");
+    public String create(@Valid @ModelAttribute("animal") Animal animal, BindingResult bindingResult, Model model, Authentication authentication) {
+        if (animal.getClient() == null) {
+            animal.setClient(new Client());
+            bindingResult.rejectValue("client", "animal.client", "Owner details are required");
+        } else if (animal.getClient().getId() == null) {
+            // Dynamic client creation validation
+            if (animal.getClient().getName() == null || animal.getClient().getName().isBlank()) {
+                bindingResult.rejectValue("client.name", "NotBlank", "Owner name is required");
+            }
+            if (animal.getClient().getPhone() == null || animal.getClient().getPhone().isBlank()) {
+                bindingResult.rejectValue("client.phone", "NotBlank", "Owner phone number is required");
+            }
+            String email = animal.getClient().getEmail();
+            if (email == null || email.isBlank()) {
+                bindingResult.rejectValue("client.email", "NotBlank", "Owner email is required");
+            } else if (!email.contains("@")) {
+                bindingResult.rejectValue("client.email", "Email", "Invalid email format");
+            } else if (authentication != null && !accessControlService.isEmployee(authentication) && !accessControlService.isAdmin(authentication)) {
+                if (!accessControlService.matchesUsername(email, authentication.getName())) {
+                    bindingResult.rejectValue("client.email", "Security", "Email must belong to your user account");
+                }
+            }
         }
 
         if (bindingResult.hasErrors()) {
             log.warn("Validation failed for animal creation");
-            if (animal.getClient() == null) {
-                animal.setClient(new Client());
-            }
-            return showForm(model, animal, animal.getId() != null && medicalRecordService.findByAnimalId(animal.getId()).isPresent());
+            return showForm(model, animal, animal.getId() != null && medicalRecordService.findByAnimalId(animal.getId()).isPresent(), authentication);
         }
 
-        animal.setClient(clientService.getClientById(animal.getClient().getId()));
+        if (animal.getClient().getId() == null) {
+            Client newClient = new Client();
+            newClient.setName(animal.getClient().getName());
+            newClient.setPhone(animal.getClient().getPhone());
+            newClient.setEmail(animal.getClient().getEmail());
+            Client savedClient = clientService.create(newClient);
+            animal.setClient(savedClient);
+        } else {
+            animal.setClient(clientService.getClientById(animal.getClient().getId()));
+        }
+
         Animal savedAnimal = animalService.create(animal);
         return "redirect:/animals/" + savedAnimal.getId();
     }
@@ -101,16 +133,17 @@ public class AnimalController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    public String showEditForm(@PathVariable Long id, Model model, Authentication authentication) {
         Animal animal = animalService.getAnimalById(id);
-        return showForm(model, animal, medicalRecordService.findByAnimalId(id).isPresent());
+        return showForm(model, animal, medicalRecordService.findByAnimalId(id).isPresent(), authentication);
     }
 
     @PostMapping("/edit/{id}")
     public String update(@PathVariable Long id,
                          @Valid @ModelAttribute("animal") Animal animal,
                          BindingResult bindingResult,
-                         Model model) {
+                         Model model,
+                         Authentication authentication) {
         if (animal.getClient() == null || animal.getClient().getId() == null) {
             bindingResult.rejectValue("client", "animal.client", "Owner is required");
         }
@@ -121,7 +154,7 @@ public class AnimalController {
             if (animal.getClient() == null) {
                 animal.setClient(new Client());
             }
-            return showForm(model, animal, medicalRecordService.findByAnimalId(id).isPresent());
+            return showForm(model, animal, medicalRecordService.findByAnimalId(id).isPresent(), authentication);
         }
 
         animal.setClient(clientService.getClientById(animal.getClient().getId()));
@@ -178,10 +211,19 @@ public class AnimalController {
         model.addAttribute("clients", clientService.getAllClients(Pageable.unpaged()).getContent());
     }
 
-    private String showForm(Model model, Animal animal, boolean hasMedicalRecord) {
+    private String showForm(Model model, Animal animal, boolean hasMedicalRecord, Authentication authentication) {
         model.addAttribute("animal", animal);
         model.addAttribute("hasMedicalRecord", hasMedicalRecord);
         model.addAttribute("formAction", animal.getId() == null ? "/animals/create" : "/animals/edit/" + animal.getId());
+        
+        Client matchedClient = null;
+        if (authentication != null) {
+            matchedClient = clientService.getAllClients(Pageable.unpaged()).getContent().stream()
+                    .filter(c -> c.getEmail() != null && accessControlService.matchesUsername(c.getEmail(), authentication.getName()))
+                    .findFirst().orElse(null);
+        }
+        model.addAttribute("matchedClient", matchedClient);
+        
         populateFormOptions(model);
         return "animals/form";
     }
