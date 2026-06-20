@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Fragments</title>
+</head>
+<body>
+
+<nav th:fragment="header(activeTab)" class="site-ribbon">
+    <div class="site-ribbon-inner">
+        <a th:href="@{/}">
+            <img alt="Buddy Care logo" class="brand-logo" th:src="@{/logo.svg}">
+        </a>
+
+        <div class="ribbon-links">
+            <a class="ribbon-link" th:classappend="${activeTab == 'dashboard'} ? 'active' : ''" th:href="@{/}">Dashboard</a>
+            <a class="ribbon-link" th:classappend="${activeTab == 'animals'} ? 'active' : ''" th:href="@{/animals}">Animals</a>
+            <a class="ribbon-link" th:classappend="${activeTab == 'appointments'} ? 'active' : ''" th:href="@{/appointments}">Appointments</a>
+            <a class="ribbon-link" th:classappend="${activeTab == 'doctors'} ? 'active' : ''" th:href="@{/doctors}">Doctors</a>
+            <a class="ribbon-link" th:classappend="${activeTab == 'clients'} ? 'active' : ''" th:href="@{/clients}" th:if="${isEmployee or isAdmin}">Clients</a>
+            <a class="ribbon-link" th:classappend="${activeTab == 'specialties'} ? 'active' : ''" th:href="@{/specialties}" th:if="${isEmployee or isAdmin}">Specialties</a>
+            <a class="ribbon-link" th:classappend="${activeTab == 'treatments'} ? 'active' : ''" th:href="@{/treatments}" th:if="${isEmployee or isAdmin}">Treatments</a>
+            <a class="ribbon-link" th:classappend="${activeTab == 'medical-records'} ? 'active' : ''" th:href="@{/medical-records}" th:if="${isEmployee or isAdmin}">Medical Records</a>
+        </div>
+
+        <div class="ribbon-actions">
+            <form class="logout-form" method="post" th:action="@{/logout}">
+                <input th:name="${_csrf.parameterName}" th:value="${_csrf.token}" type="hidden"/>
+                <button class="ribbon-link logout-link" type="submit">Log Out</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<footer th:fragment="footer" class="footer-ribbon">
+    <div class="footer-inner">
+        <div class="footer-copy">
+            <span class="footer-title">About Buddy Care</span>
+            <span class="footer-text">Buddy Care is a premium veterinary operations interface for managing patients, owners, staff, appointments, records, and treatments.</span>
+        </div>
+        <div class="footer-text">Clinical workflow is centered on the patient history and care.</div>
+    </div>
+</footer>
+
+</body>
+</html>
