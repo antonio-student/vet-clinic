@@ -46,6 +46,10 @@ public class OwnerAccessFilter extends OncePerRequestFilter {
         }
 
         if (isAnimalWriteRequest(request, path) && !canCreateAnimal(request, authentication)) {
+            logger.warn("Access denied for animal write request. Path: " + path 
+                    + ", client.id=" + request.getParameter("client.id") 
+                    + ", client.email=" + request.getParameter("client.email") 
+                    + ", username=" + authentication.getName());
             response.sendRedirect(request.getContextPath() + "/access-denied");
             return;
         }
@@ -81,8 +85,8 @@ public class OwnerAccessFilter extends OncePerRequestFilter {
     private boolean canCreateAnimal(HttpServletRequest request, Authentication authentication) {
         String clientIdRaw = request.getParameter("client.id");
         if (clientIdRaw == null || clientIdRaw.isBlank()) {
-            String email = request.getParameter("client.email");
-            return email != null && !email.isBlank() && accessControlService.matchesUsername(email, authentication.getName());
+            // New client creation: allow it to pass to the controller which will validate client.email securely
+            return true;
         }
 
         Long clientId = Long.parseLong(clientIdRaw);

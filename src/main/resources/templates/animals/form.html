@@ -81,10 +81,10 @@
                                 <span class="error-text" th:errors="*{client.phone}" th:if="${#fields.hasErrors('client.phone')}"></span>
                             </div>
                             <div class="field" style="margin-top: 12px;">
-                                <label for="clientEmail">Email Address</label>
-                                <input id="clientEmail" placeholder="user@example.com" th:field="*{client.email}" type="email" />
+                                <label for="clientEmail">Email Address (Read-only)</label>
+                                <input id="clientEmail" readonly th:field="*{client.email}" type="email" style="background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.6); cursor: not-allowed;" />
                                 <span class="error-text" th:errors="*{client.email}" th:if="${#fields.hasErrors('client.email')}"></span>
-                                <span class="helper-text">Must match your account username (<strong th:text="${#authentication.name}">user</strong>).</span>
+                                <span class="helper-text">Automatically linked to your user account.</span>
                             </div>
                         </div>
                     </div>
