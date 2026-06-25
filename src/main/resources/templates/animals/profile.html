@@ -67,7 +67,7 @@
                     <span class="detail-value" th:text="${medicalRecord != null and !#strings.isEmpty(medicalRecord.generalNotes) ? medicalRecord.generalNotes : 'No general notes added yet.'}">Notes</span>
                 </div>
 
-                <details class="accordion-card panel-section" th:if="${isEmployee or isAdmin}" th:open="${#fields.hasErrors('description') or #fields.hasErrors('treatmentDate') or #fields.hasErrors('cost')}">
+                <details class="accordion-card panel-section" th:if="${isEmployee or isAdmin}" th:object="${quickTreatment}" th:open="${#fields.hasErrors('description') or #fields.hasErrors('treatmentDate') or #fields.hasErrors('cost')}">
                     <summary class="accordion-summary">
                         <span>
                             <strong>Quick add treatment</strong>
